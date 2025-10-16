@@ -1,0 +1,10 @@
+:root { font-family: system-ui, Arial, sans-serif; color-scheme: light dark; }
+body { margin: 0; }
+.container { max-width: 920px; margin: 0 auto; padding: 16px; }
+.nav { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; }
+.nav a, .nav button { margin-left: 8px; }
+.card { border: 1px solid #ddd; border-radius: 12px; padding: 12px; margin: 8px 0; }
+input, select, button { padding: 10px; margin: 6px 6px 6px 0; }
+button { cursor: pointer; }
+.error { color: #b00020; }
+.list { list-style: none; padding: 0; }
