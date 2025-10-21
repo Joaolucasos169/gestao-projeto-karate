@@ -2,3 +2,4 @@ Flask
 psycopg2-binary        # Driver PostgreSQL
 python-dotenv          # Variáveis de ambiente
 Flask-SQLAlchemy       # Integração do SQLAlchemy com o Flask
+Flask-JWT-Extended
