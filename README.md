@@ -47,7 +47,7 @@ A solução seguirá o padrão **MVC (Model-View-Controller)** com separação c
 
 - **Frontend Web (View):** React.js  
 - **Mobile (View):** React Native  
-- **Backend (Controller + lógica de negócio):** Node.js com Express  
+- **Backend (Controller + lógica de negócio):** Python com Flask  
 - **Model:** Banco de Dados relacional PostgreSQL  
 - **APIs:** RESTful APIs para comunicação entre backend, web e mobile  
 
@@ -58,7 +58,7 @@ A solução seguirá o padrão **MVC (Model-View-Controller)** com separação c
 ## 🛠️ Tecnologias Propostas
 - **Frontend Web:** React.js  
 - **Mobile:** React Native  
-- **Backend:** Node.js (Express)  
+- **Backend:** Python (Flask)  
 - **Banco de Dados:** PostgreSQL  
 - **Hospedagem:**  
   - Vercel (frontend web)  
