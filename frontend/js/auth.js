@@ -1,95 +1,98 @@
-// URL Base da sua API Flask (Localmente: http://127.0.0.1:5000)
-// Em Produção: Mudar para a URL pública do seu servidor (Railway/Render)
-const API_BASE_URL = 'http://127.0.0.1:5000/api/v1/users'; 
-const messageBox = document.getElementById('message-box');
+// Define a URL base da API (Onde o Flask está rodando)
+const API_BASE_URL = 'http://127.0.0.1:5000/api/v1/users';
 
-// Função para exibir mensagens (erro ou sucesso)
-function displayMessage(message, isError = false) {
-    messageBox.textContent = message;
-    messageBox.classList.remove('opacity-0', 'hidden', 'bg-red-500', 'bg-green-500');
-    messageBox.classList.add(isError ? 'bg-red-500' : 'bg-green-500');
-    messageBox.classList.add('opacity-100');
+document.addEventListener('DOMContentLoaded', () => {
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
     
-    // Esconde a mensagem após 5 segundos
-    setTimeout(() => {
-        messageBox.classList.remove('opacity-100');
-        messageBox.classList.add('opacity-0');
-        setTimeout(() => messageBox.classList.add('hidden'), 300);
-    }, 5000);
+    if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
+    }
+    
+    if (registerForm) {
+        registerForm.addEventListener('submit', handleRegister);
+    }
+});
+
+// Função genérica para exibir mensagens
+function displayMessage(message, isError) {
+    const errorMessage = document.getElementById('error-message');
+    if (!errorMessage) {
+        console.error("Elemento 'error-message' não encontrado no DOM.");
+        return;
+    }
+    
+    errorMessage.textContent = message;
+    if (isError) {
+        errorMessage.classList.remove('hidden', 'bg-green-100', 'border-green-400', 'text-green-700');
+        errorMessage.classList.add('bg-red-100', 'border-red-400', 'text-red-700');
+    } else {
+        errorMessage.classList.remove('hidden', 'bg-red-100', 'border-red-400', 'text-red-700');
+        errorMessage.classList.add('bg-green-100', 'border-green-400', 'text-green-700');
+    }
+    errorMessage.classList.remove('hidden');
 }
 
-// ----------------------------------------------------
-// Lógica de Login
-// ----------------------------------------------------
-const loginForm = document.getElementById('login-form');
-if (loginForm) {
-    loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('email').value;
-        const senha = document.getElementById('password').value;
 
-        try {
-            const response = await fetch(`${API_BASE_URL}/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, senha })
-            });
+/**
+ * Lida com o envio do formulário de Login.
+ */
+async function handleLogin(event) {
+    event.preventDefault(); 
+    
+    const email = document.getElementById('email').value;
+    const senha = document.getElementById('senha').value;
 
-            const data = await response.json();
+    try {
+        const response = await fetch(`${API_BASE_URL}/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, senha })
+        });
 
-            if (response.ok) {
-                // Guarda o token e dados do usuário no LocalStorage
-                localStorage.setItem('user_token', data.token);
-                localStorage.setItem('user_data', JSON.stringify(data.user));
-                
-                displayMessage('Login realizado com sucesso! Redirecionando...', false);
-                // Redireciona para a página principal (Dashboard, que vamos criar)
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 1500);
+        const data = await response.json();
 
-            } else {
-                displayMessage(data.message || 'Erro ao fazer login.', true);
-            }
-        } catch (error) {
-            console.error('Erro na requisição de login:', error);
-            displayMessage('Falha na conexão com o servidor.', true);
+        if (response.ok) {
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            window.location.href = 'dashboard.html'; 
+        } else {
+            displayMessage(data.message || 'Credenciais inválidas.', true);
         }
-    });
+    } catch (error) {
+        console.error('Erro de rede no login:', error);
+        displayMessage('Erro de conexão com o servidor. Tente novamente.', true);
+    }
 }
 
-// ----------------------------------------------------
-// Lógica de Cadastro
-// ----------------------------------------------------
-const registerForm = document.getElementById('register-form');
-if (registerForm) {
-    registerForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const nome = document.getElementById('nome').value;
-        const email = document.getElementById('email').value;
-        const senha = document.getElementById('senha').value;
+/**
+ * Lida com o envio do formulário de Cadastro.
+ */
+async function handleRegister(event) {
+    event.preventDefault(); 
 
-        try {
-            const response = await fetch(`${API_BASE_URL}/register`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nome, email, senha })
-            });
+    const nome = document.getElementById('nome').value;
+    const email = document.getElementById('email').value;
+    const senha = document.getElementById('senha').value;
 
-            const data = await response.json();
+    try {
+        const response = await fetch(`${API_BASE_URL}/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nome, email, senha })
+        });
 
-            if (response.ok) {
-                displayMessage('Cadastro realizado! Faça login agora.', false);
-                registerForm.reset();
-                setTimeout(() => {
-                    window.location.href = 'index.html'; // Volta para o login
-                }, 2000);
-            } else {
-                displayMessage(data.message || 'Erro ao cadastrar usuário.', true);
-            }
-        } catch (error) {
-            console.error('Erro na requisição de cadastro:', error);
-            displayMessage('Falha na conexão com o servidor.', true);
+        const data = await response.json();
+
+        if (response.status === 201) {
+            alert('Cadastro realizado com sucesso! Faça o login.');
+            window.location.href = 'index.html'; 
+        } else {
+            displayMessage(data.message || 'Erro ao cadastrar.', true);
         }
-    });
+    } catch (error) {
+        console.error('Erro de rede no cadastro:', error);
+        displayMessage('Erro de conexão com o servidor. Tente novamente.', true);
+    }
 }
+
