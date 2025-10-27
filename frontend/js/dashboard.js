@@ -1,15 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Verifica o login antes de tudo
-    const token = localStorage.getItem('token'); // Usa a chave 'token'
-    const userData = localStorage.getItem('user'); // Usa a chave 'user'
+    // --- Lógica de Verificação de Login e Logout ---
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
 
-    // Elementos da interface
     const userNameElement = document.getElementById('user-name');
-    const logoutButton = document.getElementById('logoutButton'); // ID CORRIGIDO
+    const logoutButton = document.getElementById('logoutButton');
     const statsAlunosElement = document.getElementById('stats-total-alunos');
-    const statsProfessoresElement = document.getElementById('stats-professores'); // ID para contagem de professores
+    const statsProfessoresElement = document.getElementById('stats-professores');
 
-    // 1. Verificação de Autenticação (Chaves Corrigidas)
+    // 1. Verificação de Autenticação
+    // Esta verificação é importante se o protect.js não for usado ou falhar
     if (!token || !userData) {
         alert("Sessão expirada. Faça login novamente.");
         window.location.href = 'index.html'; // Relativo à pasta /public/
@@ -80,10 +80,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (alunos !== null) { // Verifica se fetch não retornou null (erro 401)
                 statsAlunosElement.textContent = alunos ? alunos.length : 'Erro'; // Exibe contagem ou 'Erro'
             } else {
-                 statsAlunosElement.textContent = 'Erro'; // Erro de autenticação
+                statsAlunosElement.textContent = 'Erro'; // Erro de autenticação
             }
         } else {
-            console.error("Elemento 'stats-total-alunos' não encontrado.");
+            // Este erro é esperado nas páginas que não são o dashboard.html
+            // console.warn("Elemento 'stats-total-alunos' não encontrado.");
         }
     }
 
@@ -98,13 +99,55 @@ document.addEventListener('DOMContentLoaded', () => {
                 statsProfessoresElement.textContent = 'Erro'; // Erro de autenticação
             }
         } else {
-            console.error("Elemento 'stats-professores' não encontrado.");
+            // Este erro é esperado nas páginas que não são o dashboard.html
+            // console.warn("Elemento 'stats-professores' não encontrado.");
         }
     }
 
-    // Carrega todas as estatísticas ao iniciar a página
-    loadAlunoStats();
-    loadProfessorStats();
+    // Carrega todas as estatísticas (Apenas se os elementos existirem)
+    if (statsAlunosElement) loadAlunoStats();
+    if (statsProfessoresElement) loadProfessorStats();
 
+    // --- LÓGICA DO MENU MÓVEL ---
+    
+    const sidebar = document.getElementById('sidebar');
+    const menuButton = document.getElementById('mobile-menu-button');
+    const mainContent = document.querySelector('main'); // Seleciona o conteúdo principal
+
+    if (menuButton && sidebar) {
+        menuButton.addEventListener('click', (e) => {
+            e.stopPropagation(); 
+            sidebar.classList.toggle('hidden'); // Mostra ou esconde a sidebar
+            
+            // Atualiza o ícone do botão
+            const icon = menuButton.querySelector('i');
+            if (icon) {
+                if (sidebar.classList.contains('hidden')) {
+                    icon.setAttribute('data-feather', 'menu');
+                } else {
+                    icon.setAttribute('data-feather', 'x'); // Ícone de fechar
+                }
+                feather.replace(); // Renderiza o novo ícone
+            }
+        });
+
+        // Opcional: Fecha o menu se clicar fora dele (no conteúdo principal)
+        if (mainContent) {
+            mainContent.addEventListener('click', () => {
+                if (sidebar && !sidebar.classList.contains('hidden')) {
+                    sidebar.classList.add('hidden');
+                    // Reseta o ícone do botão para 'menu'
+                    const icon = menuButton.querySelector('i');
+                    if (icon) {
+                        icon.setAttribute('data-feather', 'menu');
+                        feather.replace();
+                    }
+                }
+            });
+        }
+    } else {
+         // Não é um erro crítico se estiver noutra página
+        // console.warn("Elementos do menu móvel (sidebar/mobile-menu-button) não encontrados.");
+    }
 });
 

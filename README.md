@@ -1,96 +1,91 @@
-# 🥋 Karate Social System
+# 🥋 Sistema de Gestão de Karaté Social
 
 ## 📌 Descrição
-Sistema multiplataforma (Web + Mobile) para apoio e gestão de um projeto social de Karatê, voltado a crianças de comunidades em situação de vulnerabilidade.  
-O sistema permitirá gerenciar alunos, aulas, eventos, mensalidades, doações e comunicação entre professores, responsáveis e apoiadores, fortalecendo o impacto social do projeto.
+Sistema multiplataforma (Web) para apoio e gestão de um projeto social de Karaté, voltado a crianças de comunidades em situação de vulnerabilidade.  
+O sistema permitirá gerenciar alunos, professores, aulas e eventos, fortalecendo a organização e o impacto social do projeto.
 
 ---
 
-## 🚨 Problema
-O projeto social de Karatê atende crianças da comunidade, oferecendo aulas esportivas e educativas.  
-Atualmente, o gerenciamento de alunos, eventos e comunicação é feito de forma manual, o que dificulta a organização, gera falhas no acompanhamento e reduz o potencial de alcance do projeto.
+## 🏗️ Arquitetura e Tecnologias Utilizadas
+Este projeto utiliza uma arquitetura **MVC (Model-View-Controller)** separada entre Frontend e Backend:
+
+- **Frontend (View):** HTML5, Tailwind CSS, JavaScript (para interatividade e chamadas de API)  
+- **Backend (Controller + Model):** Python com Flask  
+- **Banco de Dados (Model):** PostgreSQL  
+- **ORM:** SQLAlchemy (para mapear as tabelas do PostgreSQL para classes Python)  
+- **Autenticação:** JSON Web Tokens (JWT) para proteger as rotas da API  
+
+### Servidor de Desenvolvimento (Local)
+- **Backend:** Flask → `http://127.0.0.1:5000`  
+- **Frontend:** Live Server → `http://127.0.0.1:5500` ou via `file:///`
 
 ---
 
-## ✅ Justificativa
-A tecnologia pode potencializar o impacto do projeto social, tornando sua gestão mais eficiente, transparente e acessível.  
-Este sistema contribuirá diretamente para o **ODS 11 – Cidades e Comunidades Sustentáveis**, em especial a meta **11.3 (Urbanização Inclusiva)**, ao fortalecer iniciativas comunitárias que promovem inclusão social, segurança e acesso a atividades esportivas e culturais.
+## 🚀 Como Executar o Projeto Localmente
+Para rodar este projeto na sua máquina, você precisará ter o **Python** e o **PostgreSQL** instalados.  
+Siga os passos abaixo:
 
----
+### 1. Clonar o Repositório
+```bash
+git clone https://github.com/Joaolucasos169/gestao-projeto-karate.git
+cd gestao-projeto-karate
+```
 
-## 🎯 Objetivos do Sistema
-- **Gerenciar alunos**: cadastro, faixa, frequência e histórico de evolução.  
-- **Organizar agenda de aulas e eventos**: treinos, exames de faixa e campeonatos.  
-- **Controle financeiro**: mensalidades e doações (para quem pode contribuir).  
-- **Área do aluno/responsável**: acompanhamento de presença, progressão e mensagens dos professores.  
-- **Plataforma comunitária**: conexão de voluntários, doadores e apoiadores ao projeto.  
-- **Versão mobile**: facilitar o acesso de pais e responsáveis às informações.  
+### 2. Configurar o Backend (Python/Flask)
+Todas as etapas seguintes (3 a 6) devem ser feitas dentro da pasta backend/.
+```bash
+cd backend
+```
 
----
+### 3. Criar e Ativar o Ambiente Virtual (venv)
+É crucial criar um ambiente virtual para isolar as dependências do projeto.
+```bash
+# 1. Criar o ambiente (use 'python3' se 'python' não funcionar)
+python -m venv venv
 
-## 📍 Escopo do Projeto
-### Incluído
-- Módulo administrativo (gestão de alunos, eventos e finanças).  
-- Portal web para professores e administradores.  
-- Aplicativo mobile para alunos e responsáveis.  
-- Integração com banco de dados centralizado.  
-- APIs documentadas para comunicação entre frontend e backend.  
+# 2. Ativar o ambiente (Windows CMD/PowerShell)
+venv\Scripts\activate
+```
 
-### Não incluído nesta etapa
-- Implementação prática (será feita na Etapa 2 – N708).  
-- Integrações financeiras reais (serão simuladas).  
+### 4. Criar o Ficheiro de Ambiente (.env)
+Crie um ficheiro chamado .env (exatamente assim) dentro da pasta backend/ e cole o seguinte conteúdo, substituindo as senhas:
+```bash
+# Configurações do PostgreSQL
+DB_HOST=localhost
+DB_NAME=gestao_karate
+DB_USER=postgres
+DB_PASSWORD=sua_senha_do_postgres
+DB_PORT=5432
 
----
+# Chave Secreta do JWT (Use uma string longa e aleatória)
+JWT_SECRET_KEY='sua_chave_secreta_muito_forte_aqui_123456'
+```
+⚠️ Importante: Você precisa criar manualmente a base de dados gestao_karate no seu PostgreSQL (usando pgAdmin ou psql) para que o backend consiga conectar-se.
 
-## 🏗️ Visão Geral da Arquitetura
-A solução seguirá o padrão **MVC (Model-View-Controller)** com separação clara de camadas:
+### 5. Instalar as Dependências
+Com o (venv) ativo, instale todas as bibliotecas Python necessárias:
+```bash
+# Garanta que o pip está atualizado
+pip install --upgrade pip
 
-- **Frontend Web (View):** React.js  
-- **Mobile (View):** React Native  
-- **Backend (Controller + lógica de negócio):** Node.js com Express  
-- **Model:** Banco de Dados relacional PostgreSQL  
-- **APIs:** RESTful APIs para comunicação entre backend, web e mobile  
+# Instale tudo do requirements.txt
+pip install -r requirements.txt
+```
 
-### 🔹 Diagrama Simplificado
+### 6. Rodar o Servidor Backend
+Inicie o servidor Flask (ele rodará na porta 5000):
+```bash
+(venv) C:\...\backend> python -m src.app
+```
+O terminal deve mostrar que o servidor está rodando e que as tabelas foram criadas.
+Deixe este terminal aberto.
 
----
+## 7. Rodar o Frontend (Navegador)
+Abra o seu projeto no VS Code.
+Usando o Live Server (Recomendado)
 
-## 🛠️ Tecnologias Propostas
-- **Frontend Web:** React.js  
-- **Mobile:** React Native  
-- **Backend:** Node.js (Express)  
-- **Banco de Dados:** PostgreSQL  
-- **Hospedagem:**  
-  - Vercel (frontend web)  
-  - Railway (backend e banco de dados)  
-- **Padrão Arquitetural:** MVC + boas práticas de separação de camadas  
-
----
-
-## 📅 Cronograma – Etapa 2 (N708)
-| Semana | Atividade |
-|--------|------------|
-| 1      | Configuração do repositório, setup inicial do backend e frontend |
-| 2      | Implementação do módulo de autenticação (login e cadastro) |
-| 3      | Desenvolvimento do módulo de gestão de alunos |
-| 4      | Implementação da agenda de aulas e eventos |
-| 5      | Módulo financeiro (mensalidades/doações) |
-| 6      | Integração com mobile (React Native) |
-| 7      | Testes, ajustes e documentação final |
-
----
-
-## 👥 Equipe
-- **Kamila** – Levantamento de requisitos  
-- **Ellen** – Levantamento de requisitos  
-- **Marcondes** – Documentação de APIs e cronograma  
-- **João Lucas** – Arquitetura, modelagem de banco de dados e definição de tecnologias  
-- **Carlos** – Planejamento de testes e validação  
-- **Nicolas** – Protótipos de interface (web e mobile)  
-
----
-
-## 🌍 Conexão com o ODS 11
-Este projeto se conecta ao **ODS 11 – Cidades e Comunidades Sustentáveis**, promovendo **inclusão social e urbanização inclusiva** (meta 11.3), ao apoiar iniciativas comunitárias que oferecem atividades esportivas e culturais para crianças de comunidades.  
-Assim, contribui para cidades mais **justas, seguras e sustentáveis** por meio da tecnologia.
-
+- Clique com o botão direito no ficheiro frontend/public/index.html
+Selecione "Open with Live Server"
+- O navegador abrirá em:
+http://127.0.0.1:5500/frontend/public/index.html
+O seu projeto estará totalmente funcional localmente! ✅
