@@ -1,5 +1,8 @@
 Flask
-psycopg2-binary        # Driver PostgreSQL
-python-dotenv          # Variáveis de ambiente
-Flask-SQLAlchemy       # Integração do SQLAlchemy com o Flask
+Flask-SQLAlchemy
+psycopg2-binary
+python-dotenv
 Flask-JWT-Extended
+Flask-CORS
+werkzeug
+gunicorn
