@@ -1,5 +1,5 @@
 // Define a URL base da API (Backend na porta 5000)
-const API_ALUNOS_URL = 'http://127.0.0.1:5000/api/v1/alunos/';
+const API_ALUNOS_URL = 'https://gestao-karate-backend.onrender.com/api/v1/alunos/';
 
 // Variáveis globais
 let currentEditingAlunoId = null;
