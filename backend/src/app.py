@@ -4,57 +4,69 @@ from flask_jwt_extended import JWTManager
 import os
 from dotenv import load_dotenv
 from flask_cors import CORS
-from datetime import timedelta # Importa timedelta
+from datetime import timedelta
 
-load_dotenv()
+load_dotenv() 
 
-# --- Importações ---
-# (Mantenha as importações de Modelos e Controllers)
-from .models.user_model import UserModel
-from .models.aluno_model import AlunoModel
+from .models.user_model import UserModel 
+from .models.aluno_model import AlunoModel 
 from .models.professor_model import ProfessorModel
-from .controllers.user_controller import user_bp
+ 
+from .controllers.user_controller import user_bp 
 from .controllers.aluno_controller import aluno_bp
 from .controllers.professor_controller import professor_bp
 
-
-# Instância Global do JWT
-jwt = JWTManager()
+jwt = JWTManager() 
 
 def create_app():
     app = Flask(__name__)
+    
+    origins = [
+        "http://127.0.0.1:5500",
+        "http://localhost:5500",
+        "https://gestao-projeto-karate.vercel.app" # URL DO VERCEL ADICIONADO
+    ]
+    
+    CORS(app, 
+         resources={r"/api/v1/*": {"origins": origins}}, 
+         supports_credentials=True,
+         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    )
 
-    # --- Configuração do CORS ---
-    CORS(app)
-
-    # --- Configuração do JWT ---
     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
-    # NOVO: Define o tempo de expiração do token (ex: 1 hora)
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
-    jwt.init_app(app)
+    jwt.init_app(app) 
+    
+    db_url = os.getenv("DATABASE_URL") 
+    if not db_url:
+        print("Aviso: DATABASE_URL não definida. A usar variáveis locais (DB_HOST, etc.).")
+        db_url = (
+            f"postgresql+psycopg2://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@"
+            f"{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
+        )
+    
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    
+    db.init_app(app)
+    print("Configuração do Banco de Dados concluída.")
 
-    # Configuração do Banco de Dados
-    configure_database(app)
-
-    # --- Registro dos Blueprints ---
-    app.register_blueprint(user_bp, url_prefix='/api/v1/users')
+    
+    app.register_blueprint(user_bp, url_prefix='/api/v1/users') 
     app.register_blueprint(aluno_bp, url_prefix='/api/v1/alunos')
     app.register_blueprint(professor_bp, url_prefix='/api/v1/professores')
 
-    # Rota de teste
     @app.route('/')
     def index():
         return jsonify({"message": "API de Gestão de Karatê está online!"})
 
     return app
 
-# --- Bloco de Execução Principal ---
 if __name__ == '__main__':
     app = create_app()
-
+    
     with app.app_context():
-        db.create_all()
+        db.create_all() 
         print("Tabelas criadas/verificadas no PostgreSQL.")
-
+        
     app.run(debug=True)
-
