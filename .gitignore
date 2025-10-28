@@ -1,0 +1,31 @@
+.env
+# ------------------------------------
+# Backend (Python)
+# ------------------------------------
+
+# Pasta de ambiente virtual do Python (venv)
+/backend/venv
+
+# Arquivos de bytecode compilado
+__pycache__/
+*.pyc
+
+# Arquivos e pastas do IDE (Visual Studio Code, PyCharm, etc.)
+.vscode/
+.idea/
+
+# Pastas de logs/cache
+/backend/logs
+/backend/tmp
+
+# Pasta onde ficam as dependências do Node.js
+/frontend/node_modules
+
+# Pastas de build (geradas pelo React, Vue, ou outros frameworks)
+/frontend/dist
+/frontend/build
+/frontend/out
+
+# Arquivos de log do npm
+npm-debug.log*
+yarn-debug.log*
