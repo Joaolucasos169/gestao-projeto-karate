@@ -1,4 +1,4 @@
-const API_PROFESSORES_URL = 'http://127.0.0.1:5000/api/v1/professores/';
+const API_PROFESSORES_URL = 'https://gestao-karate-backend.onrender.com/api/v1/professores/';
 
 let currentEditingProfId = null;
 

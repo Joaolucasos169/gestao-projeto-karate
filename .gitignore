@@ -2,7 +2,7 @@
 # ------------------------------------
 # Backend (Python)
 # ------------------------------------
-
+venv/
 # Pasta de ambiente virtual do Python (venv)
 /backend/venv
 

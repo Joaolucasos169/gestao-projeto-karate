@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://127.0.0.1:5000/api/v1/users';
+const API_BASE_URL = 'https://gestao-karate-backend.onrender.com/api/v1/users';
 
 function updateRequirement(elementId, isValid) {
     const element = document.getElementById(elementId);

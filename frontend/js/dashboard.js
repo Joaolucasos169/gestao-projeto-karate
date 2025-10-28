@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Carrega e exibe contagem de alunos
     async function loadAlunoStats() {
-        const API_ALUNOS_URL = 'http://127.0.0.1:5000/api/v1/alunos/'; // URL com barra
+        const API_ALUNOS_URL = 'https://gestao-karate-backend.onrender.com/api/v1/alunos/'; // URL com barra
         const alunos = await fetchData(API_ALUNOS_URL, token);
         if (statsAlunosElement) {
             if (alunos !== null) { // Verifica se fetch não retornou null (erro 401)
@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Carrega e exibe contagem de professores
     async function loadProfessorStats() {
-        const API_PROFESSORES_URL = 'http://127.0.0.1:5000/api/v1/professores/'; // URL com barra
+        const API_PROFESSORES_URL = 'https://gestao-karate-backend.onrender.com/api/v1/professores/'; // URL com barra
         const professores = await fetchData(API_PROFESSORES_URL, token);
         if (statsProfessoresElement) {
             if (professores !== null) { // Verifica se fetch não retornou null
