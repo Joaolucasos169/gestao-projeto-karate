@@ -88,4 +88,8 @@ Usando o Live Server (Recomendado)
 Selecione "Open with Live Server"
 - O navegador abrirá em:
 http://127.0.0.1:5500/frontend/public/index.html
-O seu projeto estará totalmente funcional localmente! ✅
+
+## 🔗 Links de Produção
+
+- 🌍 Frontend (Vercel): https://gestao-projeto-karate.vercel.app
+- ⚙️ Backend (Render): https://gestao-karate-backend.onrender.com
