@@ -79,7 +79,9 @@ def create_app():
 
 # ✅ Este bloco garante que funcione tanto localmente quanto no Render
 app = create_app()
-
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
 
 # ==============================
 # 🔙 VERSÃO ANTIGA (LOCAL)
