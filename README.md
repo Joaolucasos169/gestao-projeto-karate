@@ -38,19 +38,27 @@ O projeto social atendia as crianças da comunidade, mas o gerenciamento de alun
 
 # 📸 Screenshots
 
-## Tela de Login
-![Tela de Login](images/login.png)
-![Tela de Cadastro](images/cadastrar.png)
-![Tela de esqueceu senha](images/esqueceu_senha.png)
-
-## Dashboard Responsivo
-![Dashboard no Telemóvel](images/dashboard.png)
-![Menu latera no Telemóvel](images/menu_lateral.png)
-
-## Gestão de Alunos (CRUD)
-![Lista de Alunos](images/gerenciamento_alunos_pc.png)
+## 🧑‍💻 Tela de Login
+<p align="center">
+  <img src="images/login.png" alt="Tela de Login" width="350"/>
+  <img src="images/cadastrar.png" alt="Tela de Cadastro" width="350"/>
+  <img src="images/esqueceu_senha.png" alt="Tela de Esqueceu Senha" width="350"/>
+</p>
 
 ---
+
+## 📱 Dashboard Responsivo
+<p align="center">
+  <img src="images/dashboard.png" alt="Dashboard no Telemóvel" width="350"/>
+  <img src="images/menu_lateral.png" alt="Menu Lateral no Telemóvel" width="350"/>
+</p>
+
+---
+
+## 🎓 Gestão de Alunos (CRUD)
+<p align="center">
+  <img src="images/gerenciamento_alunos_pc.png" alt="Lista de Alunos" width="600"/>
+</p>
 
 ## 🏗️ Arquitetura e Tecnologias Utilizadas
 Este projeto utiliza uma arquitetura **MVC (Model-View-Controller)** separada entre Frontend e Backend:
@@ -139,3 +147,11 @@ http://127.0.0.1:5500/frontend/public/index.html
 
 - 🌍 Frontend (Vercel): https://gestao-projeto-karate.vercel.app
 - ⚙️ Backend (Render): https://gestao-karate-backend.onrender.com
+
+### 👨‍💻 Equipe de Desenvolvimento
+- Kamila – Levantamento de requisitos
+- Ellen – Levantamento de requisitos
+- Marcondes – Documentação de APIs e cronograma
+- João Lucas – Arquitetura, Modelagem de BD e Desenvolvimento (Backend/Frontend)
+- Carlos – Planejamento de testes e validação
+- Nicolas – Protótipos de interface (web e mobile)
