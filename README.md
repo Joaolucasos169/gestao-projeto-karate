@@ -1,8 +1,54 @@
-# 🥋 Sistema de Gestão de Karaté Social
+# 🥋 Sistema de Gestão de Karate Social
 
 ## 📌 Descrição
-Sistema multiplataforma (Web) para apoio e gestão de um projeto social de Karaté, voltado a crianças de comunidades em situação de vulnerabilidade.  
+Sistema multiplataforma (Web) para apoio e gestão de um projeto social de Karate, voltado a crianças de comunidades em situação de vulnerabilidade.  
 O sistema permitirá gerenciar alunos, professores, aulas e eventos, fortalecendo a organização e o impacto social do projeto.
+
+---
+
+# 🚨 Problema Solucionado
+
+O projeto social atendia as crianças da comunidade, mas o gerenciamento de alunos, a comunicação com os pais e a organização de eventos eram feitos de forma manual (papel, planilhas, grupos de WhatsApp). Isto dificultava o acompanhamento, gerava falhas de comunicação e consumia muito tempo administrativo do Sensei, reduzindo o potencial de alcance do projeto.
+
+---
+
+# ✅ Funcionalidades Implementadas
+
+| Funcionalidade | Status |
+|----------------|--------|
+| Autenticação Segura (Login/Cadastro) | Completo |
+| Gestão de Segurança (Token JWT) | Completo |
+| Validação de Senha Forte (Frontend) | Completo |
+| Validação de Domínio de Email (Frontend) | Completo |
+| Proteção de Rotas (Frontend/Backend) | Completo |
+| Gestão de Alunos (CRUD) | Completo |
+| Cadastro, Listagem, Edição e Inativação | Completo |
+| Pesquisa por Nome ou CPF (Frontend) | Completo |
+| Validação de CPF Válido (Backend) | Completo |
+| Validação de Telefone (11 dígitos) (Backend) | Completo |
+| Gestão de Professores (CRUD) | Completo |
+| Cadastro (com criação de login), Listagem, Edição e Inativação | Completo |
+| Validação de CPF Válido (Backend) | Completo |
+| Gestão de Aulas/Turmas (CRUD) | Completo |
+| Cadastro, Listagem (com nome do professor) | Completo |
+| Design Responsivo (Mobile-First) | Completo |
+| Adaptação de todas as telas (Login, Dashboard, CRUDs) para telemóvel | Completo |
+
+---
+
+# 📸 Screenshots
+
+## Tela de Login
+![Tela de Login](images/login.png)
+![Tela de Cadastro](images/cadastrar.png)
+![Tela de esqueceu senha](images/esqueceu_senha.png)
+
+## Dashboard Responsivo
+![Dashboard no Telemóvel](images/dashboard.png)
+![Menu latera no Telemóvel](images/menu_lateral.png)
+
+## Gestão de Alunos (CRUD)
+![Lista de Alunos](images/gerenciamento_alunos_pc.png)
 
 ---
 

@@ -1,6 +1,6 @@
 # Definição do Público-Alvo
 
-Este documento define os perfis de utilizadores (Personas) para o **Sistema de Gestão de Karaté Social**, focado no projeto do Sensei Walisson Brito nas comunidades do Cristo Redentor e Pirambu, em Fortaleza.
+Este documento define os perfis de utilizadores (Personas) para o **Sistema de Gestão de Karaté Social**, focado no projeto de karate "Tora no Maki" do Sensei Walisson Brito nas comunidades do Cristo Redentor, em Fortaleza.
 
 O sistema possui três grupos de utilizadores principais e um secundário:
 
