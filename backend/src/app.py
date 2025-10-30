@@ -13,6 +13,7 @@ load_dotenv()
 from .models.user_model import UserModel
 from .models.aluno_model import AlunoModel
 from .models.professor_model import ProfessorModel
+from .controllers.aula_controller import aula_bp
 
 # Importa os controladores (rotas)
 from .controllers.user_controller import user_bp
@@ -67,7 +68,8 @@ def create_app():
     app.register_blueprint(user_bp, url_prefix="/api/v1/users")
     app.register_blueprint(aluno_bp, url_prefix="/api/v1/alunos")
     app.register_blueprint(professor_bp, url_prefix="/api/v1/professores")
-
+    app.register_blueprint(aula_bp, url_prefix="/api/v1/aulas")
+    
     @app.route("/")
     def index():
         return jsonify({"message": "API de Gestão de Karatê está online!"})
