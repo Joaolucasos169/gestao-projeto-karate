@@ -131,16 +131,6 @@ async function handleAulaSubmit(event) {
   }
 }
 
-// ==================== EVENTOS DOS DIAS DA SEMANA ====================
-document.querySelectorAll(".day-label").forEach((label) => {
-  label.addEventListener("click", () => {
-    const checkbox = document.getElementById(label.getAttribute("for"));
-    checkbox.checked = !checkbox.checked;
-    label.classList.toggle("bg-indigo-600", checkbox.checked);
-    label.classList.toggle("text-white", checkbox.checked);
-  });
-});
-
 // ==================== EVENTO DE LOGOUT ====================
 document.getElementById("logoutButton")?.addEventListener("click", () => {
   localStorage.removeItem("token");
@@ -151,4 +141,7 @@ document.getElementById("logoutButton")?.addEventListener("click", () => {
 document.addEventListener("DOMContentLoaded", () => {
   carregarProfessores();
   carregarAulas();
+
+  const form = document.getElementById("aula-form");
+  if (form) form.addEventListener("submit", handleAulaSubmit);
 });

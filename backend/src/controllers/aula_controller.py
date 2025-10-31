@@ -11,7 +11,7 @@ aula_bp = Blueprint('aula_bp', __name__)
 @jwt_required()
 def create_aula():
     data = request.get_json() or {}
-    required = ['turma', 'modalidade', 'horario', 'professor_id', 'dias']
+    required = ['nome_turma', 'modalidade', 'horario_inicio', 'horario_fim', 'fk_professor', 'dias_semana']
     missing = [f for f in required if not data.get(f)]
     if missing:
         return jsonify({"message": f"Campos faltando: {', '.join(missing)}"}), 400
@@ -27,12 +27,12 @@ def create_aula():
             return jsonify({"message": "Professor não encontrado."}), 404
 
         nova_aula = AulaModel(
-            nome_turma=data['turma'],
+            nome_turma=data['nome_turma'],
             modalidade=data['modalidade'],
             horario_inicio=inicio,
             horario_fim=fim,
             fk_professor=prof.id,
-            dias_semana=data['dias']
+            dias_semana=data['dias_semana']
         )
 
         db.session.add(nova_aula)
