@@ -1,8 +1,8 @@
 Flask
 Flask-SQLAlchemy
-psycopg2-binary
-python-dotenv
+Flask-Cors
 Flask-JWT-Extended
-Flask-CORS
-werkzeug
-gunicorn
+python-dotenv
+pytest
+pytest-flask
+SQLAlchemy
