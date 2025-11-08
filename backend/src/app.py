@@ -1,75 +1,114 @@
-from flask import Flask, jsonify, request, make_response
-from .database import db
+from flask import Flask, jsonify
+from src.database import db
 from flask_jwt_extended import JWTManager
 import os
 from dotenv import load_dotenv
 from flask_cors import CORS
 from datetime import timedelta
+import sys
 
-# Carrega variáveis de ambiente
-load_dotenv()
+# -------------------------------------------------------
+# 🔍 DETECÇÃO DO MODO DE TESTE
+# -------------------------------------------------------
+IS_TEST = (
+    "pytest" in sys.modules
+    or os.getenv("PYTEST_CURRENT_TEST") is not None
+    or os.getenv("FLASK_ENV") == "testing"
+)
 
-# Importa modelos (precisa importar antes do db.create_all)
-from .models.user_model import UserModel
-from .models.aluno_model import AlunoModel
-from .models.professor_model import ProfessorModel
-from .controllers.aula_controller import aula_bp
+# -------------------------------------------------------
+# 🌱 CARREGAMENTO DAS VARIÁVEIS DE AMBIENTE
+# -------------------------------------------------------
+if IS_TEST:
+    load_dotenv(".env.test") if os.path.exists(".env.test") else load_dotenv()
+    print("🧪 Ambiente de TESTE detectado (usando SQLite em memória)")
+else:
+    load_dotenv()
 
-# Importa os controladores (rotas)
-from .controllers.user_controller import user_bp
-from .controllers.aluno_controller import aluno_bp
-from .controllers.professor_controller import professor_bp
+# -------------------------------------------------------
+# 📦 IMPORTAÇÕES DE MODELOS E CONTROLADORES
+# -------------------------------------------------------
+from src.models.user_model import UserModel
+from src.models.aluno_model import AlunoModel
+from src.models.professor_model import ProfessorModel
+from src.controllers.aula_controller import aula_bp
+from src.controllers.user_controller import user_bp
+from src.controllers.aluno_controller import aluno_bp
+from src.controllers.professor_controller import professor_bp
 
 jwt = JWTManager()
 
+
+# -------------------------------------------------------
+# 🧱 FUNÇÃO PRINCIPAL DE CRIAÇÃO DA APP
+# -------------------------------------------------------
 def create_app():
     app = Flask(__name__)
 
-    # Configuração de CORS
+    # ---------------------------------------------------
+    # 🌐 CORS
+    # ---------------------------------------------------
     origins = [
         "http://127.0.0.1:5500",
         "http://localhost:5500",
-        "https://gestao-projeto-karate.vercel.app"
+        "https://gestao-projeto-karate.vercel.app",
     ]
-    
-    CORS(app, 
-         resources={r"/api/v1/*": {"origins": origins}}, 
-         supports_credentials=True,
-         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    CORS(
+        app,
+        resources={r"/api/v1/*": {"origins": origins}},
+        supports_credentials=True,
+        methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     )
 
-    # Configuração JWT
-    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
+    # ---------------------------------------------------
+    # 🔐 JWT
+    # ---------------------------------------------------
+    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "secret-for-tests")
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
     jwt.init_app(app)
 
-    # Banco de dados
-    db_url = os.getenv("DATABASE_URL")
-    if not db_url:
-        print("⚠️ DATABASE_URL não encontrada. Tentando montar manualmente...")
-        db_url = (
-            f"postgresql+psycopg2://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@"
-            f"{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
-        )
+    # ---------------------------------------------------
+    # 🗄️ CONFIGURAÇÃO DO BANCO DE DADOS
+    # ---------------------------------------------------
+    if IS_TEST:
+        db_url = "sqlite:///:memory:"
+        print("🧩 Usando banco SQLite em memória para testes")
+    else:
+        db_url = os.getenv("DATABASE_URL")
+        if not db_url:
+            print("⚠️ DATABASE_URL não encontrada. Tentando montar manualmente...")
+            host = os.getenv("DB_HOST") or "localhost"
+            user = os.getenv("DB_USER") or "postgres"
+            password = os.getenv("DB_PASSWORD") or "postgres"
+            port = os.getenv("DB_PORT") or "5432"
+            name = os.getenv("DB_NAME") or "postgres"
+            db_url = f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{name}"
 
-    if db_url.startswith("postgres://"):
-        db_url = db_url.replace("postgres://", "postgresql://")
+        if db_url.startswith("postgres://"):
+            db_url = db_url.replace("postgres://", "postgresql://")
 
     app.config["SQLALCHEMY_DATABASE_URI"] = db_url
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.init_app(app)
 
-    # Criação automática das tabelas no Render
+    # ---------------------------------------------------
+    # 🧾 CRIAÇÃO DAS TABELAS (LOCAL E TESTE)
+    # ---------------------------------------------------
     with app.app_context():
         db.create_all()
         print("✅ Todas as tabelas foram criadas/verificadas com sucesso!")
 
-    # Registro das rotas
+    # ---------------------------------------------------
+    # 🚏 REGISTRO DAS ROTAS
+    # ---------------------------------------------------
     app.register_blueprint(user_bp, url_prefix="/api/v1/users")
     app.register_blueprint(aluno_bp, url_prefix="/api/v1/alunos")
     app.register_blueprint(professor_bp, url_prefix="/api/v1/professores")
     app.register_blueprint(aula_bp, url_prefix="/api/v1/aulas")
-    
+
+    # ---------------------------------------------------
+    # 🏠 ROTA PRINCIPAL
+    # ---------------------------------------------------
     @app.route("/")
     def index():
         return jsonify({"message": "API de Gestão de Karatê está online!"})
@@ -77,85 +116,10 @@ def create_app():
     return app
 
 
-# ✅ Este bloco garante que funcione tanto localmente quanto no Render
-app = create_app()
+# -------------------------------------------------------
+# 🚀 EXECUÇÃO LOCAL / PRODUÇÃO (Render, Vercel etc.)
+# -------------------------------------------------------
 if __name__ == "__main__":
-    import os
+    app = create_app()
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-
-
-# ==============================
-# 🔙 VERSÃO ANTIGA (LOCAL)
-# ==============================
-
-# from flask import Flask, jsonify, request, make_response
-# from .database import configure_database, db
-# from flask_jwt_extended import JWTManager
-# import os
-# from dotenv import load_dotenv
-# from flask_cors import CORS
-# from datetime import timedelta
-
-# load_dotenv() 
-
-# from .models.user_model import UserModel 
-# from .models.aluno_model import AlunoModel 
-# from .models.professor_model import ProfessorModel
- 
-# from .controllers.user_controller import user_bp 
-# from .controllers.aluno_controller import aluno_bp
-# from .controllers.professor_controller import professor_bp
-
-# jwt = JWTManager() 
-
-# def create_app():
-#     app = Flask(__name__)
-    
-#     origins = [
-#         "http://127.0.0.1:5500",
-#         "http://localhost:5500",
-#     ]
-    
-#     CORS(app, 
-#          resources={r"/api/v1/*": {"origins": origins}}, 
-#          supports_credentials=True,
-#          methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-#     )
-
-#     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
-#     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
-#     jwt.init_app(app) 
-    
-#     db_url = os.getenv("DATABASE_URL") 
-#     if not db_url:
-#         print("Aviso: DATABASE_URL não definida. A usar variáveis locais (DB_HOST, etc.).")
-#         db_url = (
-#             f"postgresql+psycopg2://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@"
-#             f"{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
-#         )
-    
-#     app.config['SQLALCHEMY_DATABASE_URI'] = db_url
-#     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    
-#     db.init_app(app)
-#     print("Configuração do Banco de Dados concluída.")
-
-#     app.register_blueprint(user_bp, url_prefix='/api/v1/users') 
-#     app.register_blueprint(aluno_bp, url_prefix='/api/v1/alunos')
-#     app.register_blueprint(professor_bp, url_prefix='/api/v1/professores')
-
-#     @app.route('/')
-#     def index():
-#         return jsonify({"message": "API de Gestão de Karatê está online!"})
-
-#     return app
-
-# if __name__ == '__main__':
-#     app = create_app()
-    
-#     with app.app_context():
-#         db.create_all() 
-#         print("Tabelas criadas/verificadas no PostgreSQL.")
-        
-#     app.run(debug=True)
