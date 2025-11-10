@@ -1,8 +1,9 @@
 Flask
-Flask-SQLAlchemy
 Flask-Cors
 Flask-JWT-Extended
+Flask-SQLAlchemy
+psycopg2-binary
 python-dotenv
+gunicorn
 pytest
 pytest-flask
-SQLAlchemy
