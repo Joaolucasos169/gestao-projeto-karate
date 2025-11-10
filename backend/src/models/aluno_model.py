@@ -11,6 +11,7 @@ class AlunoModel(db.Model):
     nome = db.Column(db.String(120), nullable=False)
     cpf = db.Column(db.String(14), unique=True, nullable=True) # CPF pode ser NULL se for menor
     data_nascimento = db.Column(db.Date, nullable=False)
+    sexo = db.Column(db.String(10), nullable=True)
     telefone = db.Column(db.String(20), nullable=True)
     
     # Endereço (Pode ser uma string única para simplificar, ou separar em outra tabela)
@@ -37,6 +38,7 @@ class AlunoModel(db.Model):
             'nome': self.nome,
             'cpf': self.cpf,
             'data_nascimento': self.data_nascimento.isoformat() if self.data_nascimento else None,
+            'sexo': self.sexo,
             'telefone': self.telefone,
             'endereco': self.endereco,
             'nome_pais': self.nome_pais,

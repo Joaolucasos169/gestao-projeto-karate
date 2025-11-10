@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request, make_response
 from .database import db
 from flask_jwt_extended import JWTManager
+from flask_migrate import Migrate  # ✅ Adicionado
 import os
 from dotenv import load_dotenv
 from flask_cors import CORS
@@ -58,9 +59,12 @@ def create_app():
 
     app.config["SQLALCHEMY_DATABASE_URI"] = db_url
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    db.init_app(app)
 
-    # Criação automática das tabelas no Render
+    # Inicializa banco e migrações
+    db.init_app(app)
+    migrate = Migrate(app, db)  # ✅ Adicionado para suportar migrações sem quebrar o banco
+
+    # Criação automática das tabelas no Render (apenas se não existirem)
     with app.app_context():
         db.create_all()
         print("✅ Todas as tabelas foram criadas/verificadas com sucesso!")
@@ -80,76 +84,7 @@ def create_app():
 
 # ✅ Este bloco garante que funcione tanto localmente quanto no Render
 app = create_app()
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-
-# ==============================
-# 🔙 VERSÃO ANTIGA (LOCAL)
-# ==============================
-# from flask import Flask, jsonify, request, make_response
-# from .database import configure_database, db
-# from flask_jwt_extended import JWTManager
-# import os
-# from dotenv import load_dotenv
-# from flask_cors import CORS
-# from datetime import timedelta
-
-# load_dotenv() 
-
-# from .models.user_model import UserModel 
-# from .models.aluno_model import AlunoModel 
-# from .models.professor_model import ProfessorModel
-# from .controllers.user_controller import user_bp 
-# from .controllers.aluno_controller import aluno_bp
-# from .controllers.professor_controller import professor_bp
-
-# jwt = JWTManager() 
-
-# def create_app():
-#     app = Flask(__name__)
-    
-#     origins = [
-#         "http://127.0.0.1:5500",
-#         "http://localhost:5500",
-#     ]
-    
-#     CORS(app, 
-#          resources={r"/api/v1/*": {"origins": origins}}, 
-#          supports_credentials=True,
-#          methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-#     )
-
-#     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
-#     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
-#     jwt.init_app(app) 
-    
-#     db_url = os.getenv("DATABASE_URL") 
-#     if not db_url:
-#         print("Aviso: DATABASE_URL não definida. A usar variáveis locais (DB_HOST, etc.).")
-#         db_url = (
-#             f"postgresql+psycopg2://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@"
-#             f"{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
-#         )
-    
-#     app.config['SQLALCHEMY_DATABASE_URI'] = db_url
-#     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    
-#     db.init_app(app)
-#     print("Configuração do Banco de Dados concluída.")
-
-#     app.register_blueprint(user_bp, url_prefix='/api/v1/users') 
-#     app.register_blueprint(aluno_bp, url_prefix='/api/v1/alunos')
-#     app.register_blueprint(professor_bp, url_prefix='/api/v1/professores')
-
-#     @app.route('/')
-#     def index():
-#         return jsonify({"message": "API de Gestão de Karatê está online!"})
-#     return app
-
-# if __name__ == '__main__':
-#     app = create_app()
-#     with app.app_context():
-#         db.create_all() 
-#         print("Tabelas criadas/verificadas no PostgreSQL.")
-#     app.run(debug=True)

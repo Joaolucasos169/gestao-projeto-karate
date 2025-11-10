@@ -7,3 +7,5 @@ python-dotenv
 gunicorn
 pytest
 pytest-flask
+Flask-Migrate==4.0.7
+
