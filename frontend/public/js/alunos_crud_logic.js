@@ -40,7 +40,7 @@ function setTableContent(htmlContent) {
 
 function createStatusRow(message, isError = false) {
     const textColor = isError ? 'text-red-500' : 'text-gray-500';
-    return `<tr><td colspan="6" class="text-center py-4 ${textColor}">${message}</td></tr>`;
+    return `<tr><td colspan="7" class="text-center py-4 ${textColor}">${message}</td></tr>`;
 }
 
 async function loadAlunos() {
