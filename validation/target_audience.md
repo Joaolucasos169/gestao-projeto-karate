@@ -1,17 +1,12 @@
 # Definição do Público-Alvo
 
-Este documento define os perfis de utilizadores (Personas) para o **Sistema de Gestão de Karaté Social**, focado no projeto de karate "Tora no Maki" do Sensei Walisson Brito nas comunidades do Cristo Redentor, em Fortaleza.
-
-O sistema possui três grupos de utilizadores principais e um secundário:
-
+Este documento define os perfis de utilizadores (Personas) para o **Sistema de Gestão de Karate Social**, focado no projeto de karate "Tora no Maki" do Sensei Walisson Brito nas comunidades do Cristo Redentor, em Fortaleza.
 ---
 
-## Persona 1: O Gestor (Administrador/Professor)
-
-**Perfil:** Sensei Walisson Brito (e outros professores/voluntários de confiança)
-
-**Contexto:**  
-É o principal gestor do projeto. Lida diretamente com o cadastro de alunos, a organização de turmas, a comunicação com os pais e a gestão financeira (doações/mensalidades simbólicas).
+**Nome:** Sensei Wallison Brito 
+**Função:** Coordenador e professor do Projeto Social "Karate Tora no Maki"  
+**Localização:** Av. Monsenhor Hélio Campos, 178 - Quadra CSU, Bairro: Cristo Redentor, Fortaleza - CE  
+**Contato:** (85)9.9718-2033
 
 **Dores (Problemas Atuais):**  
 - Gestão manual em papel ou planilhas (Excel, Google Sheets).  
