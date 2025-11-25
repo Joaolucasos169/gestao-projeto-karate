@@ -1,199 +1,207 @@
 const API_BASE_URL = 'https://gestao-karate-backend.onrender.com/api/v1/users';
 
-/* --------------------------- FORÇA DA SENHA --------------------------- */
-
-function checkPasswordStrength() {
-    const senha = document.getElementById('senha')?.value || '';
-    const bar = document.getElementById('passwordStrengthBar');
-    const text = document.getElementById('passwordStrengthText');
-
-    let score = 0;
-
-    if (senha.length >= 8) score++;
-    if (/[a-z]/.test(senha)) score++;
-    if (/[A-Z]/.test(senha)) score++;
-    if (/[0-9]/.test(senha)) score++;
-    if (/[!@#$%^&*]/.test(senha)) score++;
-
-    // Atualizar barra
-    switch (score) {
-        case 0:
-        case 1:
-            bar.style.width = "20%";
-            bar.style.background = "#ef4444"; // vermelho
-            text.textContent = "Senha fraca";
-            text.style.color = "#ef4444";
-            break;
-
-        case 2:
-        case 3:
-            bar.style.width = "60%";
-            bar.style.background = "#f59e0b"; // amarelo
-            text.textContent = "Senha intermediária";
-            text.style.color = "#f59e0b";
-            break;
-
-        case 4:
-        case 5:
-            bar.style.width = "100%";
-            bar.style.background = "#10b981"; // verde
-            text.textContent = "Senha forte";
-            text.style.color = "#10b981";
-            break;
-    }
-
-    updateRegisterButtonState();
-    return score >= 4; // senha forte
+/* ---------- Helpers ---------- */
+function safeGet(id) {
+  return document.getElementById(id) || null;
 }
 
-/* --------------------------- CONFIRMAR SENHA --------------------------- */
-
-function checkPasswordMatch() {
-    const senha = document.getElementById('senha')?.value || '';
-    const confirmarSenha = document.getElementById('confirmarSenha')?.value || '';
-    
-    const feedback = document.getElementById('confirmar-senha-feedback');
-    const confirmarInput = document.getElementById('confirmarSenha');
-
-    const isMatch = senha === confirmarSenha && confirmarSenha.length > 0;
-
-    if (!isMatch && confirmarSenha.length > 0) {
-        feedback.classList.remove('hidden');
-        confirmarInput.classList.add('border-red-500');
-    } else {
-        feedback.classList.add('hidden');
-        confirmarInput.classList.remove('border-red-500');
-    }
-
-    updateRegisterButtonState();
-    return isMatch;
+function safeText(el, text) {
+  if (!el) return;
+  el.textContent = text;
 }
 
-/* --------------------------- DOMÍNIO DO EMAIL --------------------------- */
+/* ---------- Password Strength (barra) ---------- */
+function computePasswordScore(senha) {
+  let score = 0;
+  if (!senha) return 0;
+  if (senha.length >= 8) score++;
+  if (/[a-z]/.test(senha)) score++;
+  if (/[A-Z]/.test(senha)) score++;
+  if (/[0-9]/.test(senha)) score++;
+  if (/[!@#$%^&*]/.test(senha)) score++;
+  return score;
+}
 
+function updatePasswordStrengthUI() {
+  const senha = safeGet('senha')?.value || '';
+  const bar = safeGet('passwordStrengthBar');
+  const text = safeGet('passwordStrengthText');
+
+  if (!bar && !text) return; // nada a fazer se a UI não existir nesta página
+
+  const score = computePasswordScore(senha);
+
+  if (score <= 1) {
+    if (bar) { bar.style.width = "20%"; bar.style.background = "#ef4444"; }
+    if (text) { text.textContent = "Senha fraca"; text.style.color = "#ef4444"; }
+  } else if (score <= 3) {
+    if (bar) { bar.style.width = "60%"; bar.style.background = "#f59e0b"; }
+    if (text) { text.textContent = "Senha intermediária"; text.style.color = "#f59e0b"; }
+  } else {
+    if (bar) { bar.style.width = "100%"; bar.style.background = "#10b981"; }
+    if (text) { text.textContent = "Senha forte"; text.style.color = "#10b981"; }
+  }
+
+  // Retorna booleano se for forte (score >= 4)
+  return score >= 4;
+}
+
+/* ---------- Email Domain Validation ---------- */
 function checkEmailDomain() {
-    const emailInput = document.getElementById('email');
-    const emailFeedback = document.getElementById('email-feedback');
+  const emailInput = safeGet('email');
+  const emailFeedback = safeGet('email-feedback');
+  if (!emailInput || !emailFeedback) return true; // se elementos ausentes, trate como válido (p.ex. tela de login só)
 
-    const email = emailInput.value.toLowerCase();
-    const validDomains = ['@gmail.com', '@yahoo.com', '@hotmail.com', '@outlook.com'];
+  const email = (emailInput.value || '').toLowerCase();
+  const validDomains = ['@gmail.com', '@yahoo.com', '@hotmail.com', '@outlook.com'];
 
-    const isValid = validDomains.some(domain => email.endsWith(domain));
+  const isValid = email ? validDomains.some(domain => email.endsWith(domain)) : false;
 
-    if (email && !isValid) {
-        emailFeedback.classList.remove('hidden');
-        emailInput.classList.add('border-red-500');
-    } else {
-        emailFeedback.classList.add('hidden');
-        emailInput.classList.remove('border-red-500');
-    }
+  if (email && !isValid) {
+    emailFeedback.classList.remove('hidden');
+    emailInput.classList.add('border-red-500');
+  } else {
+    emailFeedback.classList.add('hidden');
+    emailInput.classList.remove('border-red-500');
+  }
 
-    updateRegisterButtonState();
-    return isValid;
+  return isValid;
 }
 
-/* --------------------------- BOTÃO REGISTRAR --------------------------- */
+/* ---------- Password Match ---------- */
+function checkPasswordMatch() {
+  const senhaInput = safeGet('senha');
+  const confirmarInput = safeGet('confirmarSenha');
+  const feedback = safeGet('confirmar-senha-feedback');
 
+  if (!confirmarInput || !feedback || !senhaInput) return true; // nada a validar se elementos não existem
+
+  const senha = senhaInput.value || '';
+  const confirmarSenha = confirmarInput.value || '';
+
+  const isMatch = senha === confirmarSenha && confirmarSenha.length > 0;
+
+  if (!isMatch && confirmarSenha.length > 0) {
+    feedback.classList.remove('hidden');
+    confirmarInput.classList.add('border-red-500');
+  } else {
+    feedback.classList.add('hidden');
+    confirmarInput.classList.remove('border-red-500');
+  }
+
+  return isMatch;
+}
+
+/* ---------- Atualiza estado do botão Registrar (sem recursão) ---------- */
 function updateRegisterButtonState() {
-    const registerButton = document.getElementById('registerButton');
+  const registerButton = safeGet('registerButton');
+  if (!registerButton) return;
 
-    const nome = document.getElementById('nome')?.value.trim();
-    const email = document.getElementById('email')?.value.trim().toLowerCase();
-    const senha = document.getElementById('senha')?.value || '';
-    const confirmarSenha = document.getElementById('confirmarSenha')?.value || '';
+  const nome = safeGet('nome')?.value.trim() || '';
+  const email = (safeGet('email')?.value.trim() || '').toLowerCase();
+  const senha = safeGet('senha')?.value || '';
+  const confirmarSenha = safeGet('confirmarSenha')?.value || '';
 
-    const validDomains = ['@gmail.com', '@yahoo.com', '@hotmail.com', '@outlook.com'];
-    const isEmailValid = validDomains.some(domain => email.endsWith(domain));
+  const validDomains = ['@gmail.com', '@yahoo.com', '@hotmail.com', '@outlook.com'];
+  const isEmailValid = email ? validDomains.some(domain => email.endsWith(domain)) : false;
 
-    const isStrong = checkPasswordStrength();
-    const doPasswordsMatch = senha === confirmarSenha && confirmarSenha.length > 0;
+  // Em vez de chamar checkPasswordStrength (que atualiza a UI), recalculamos a força aqui
+  const isStrong = computePasswordScore(senha) >= 4;
 
-    const canEnable = nome && isEmailValid && isStrong && doPasswordsMatch;
+  const doPasswordsMatch = senha === confirmarSenha && confirmarSenha.length > 0;
 
-    registerButton.disabled = !canEnable;
+  const canEnable = nome && isEmailValid && isStrong && doPasswordsMatch;
+
+  registerButton.disabled = !canEnable;
 }
 
-/* --------------------------- MOSTRAR / ESCONDER SENHA --------------------------- */
-
+/* ---------- Toggle Password Visibility ---------- */
 function togglePasswordVisibility(fieldId, iconId) {
-    const field = document.getElementById(fieldId);
-    const icon = document.getElementById(iconId);
+  const field = safeGet(fieldId);
+  const icon = safeGet(iconId);
 
-    if (field.type === "password") {
-        field.type = "text";
-        icon.setAttribute('data-feather', 'eye');
-    } else {
-        field.type = "password";
-        icon.setAttribute('data-feather', 'eye-off');
-    }
-
-    feather.replace();
+  if (!field) return;
+  if (field.type === "password") {
+    field.type = "text";
+    if (icon) { icon.setAttribute('data-feather', 'eye'); }
+  } else {
+    field.type = "password";
+    if (icon) { icon.setAttribute('data-feather', 'eye-off'); }
+  }
+  if (window.feather) feather.replace();
 }
 
-/* --------------------------- ENVIAR FORMULÁRIO --------------------------- */
-
+/* ---------- Form submit (exemplo, mantendo sua lógica) ---------- */
 async function handleRegister(event) {
-    event.preventDefault();
+  if (event) event.preventDefault();
 
-    const feedback = document.getElementById('feedback-message');
+  // Validações finais
+  const nome = safeGet('nome')?.value.trim();
+  const email = safeGet('email')?.value.trim();
+  const senha = safeGet('senha')?.value || '';
 
-    const nome = document.getElementById('nome').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const senha = document.getElementById('senha').value.trim();
+  if (!nome || !email || !senha) {
+    showFeedback('Preencha todos os campos', 'error');
+    return;
+  }
 
-    try {
-        const response = await fetch(`${API_BASE_URL}/register`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ nome, email, senha })
-        });
+  if (!checkEmailDomain() || !updatePasswordStrengthUI() || !checkPasswordMatch()) {
+    showFeedback('Corrija as validações antes de prosseguir', 'error');
+    return;
+  }
 
-        const data = await response.json();
-
-        if (!response.ok) {
-            feedback.textContent = data.message || 'Erro ao criar conta.';
-            feedback.style.display = 'block';
-            feedback.className = 'feedback-message bg-red-100 text-red-700';
-            return;
-        }
-
-        feedback.textContent = 'Conta criada com sucesso!';
-        feedback.style.display = 'block';
-        feedback.className = 'feedback-message bg-green-100 text-green-700';
-
-        setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 1500);
-
-    } catch (error) {
-        feedback.textContent = 'Erro inesperado.';
-        feedback.style.display = 'block';
-        feedback.className = 'feedback-message bg-red-100 text-red-700';
-    }
+  // envio para API...
+  try {
+    const response = await fetch(`${API_BASE_URL}/register`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ nome, email, senha })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || 'Erro ao criar conta');
+    showFeedback('Conta criada com sucesso!');
+    setTimeout(() => window.location.href = 'index.html', 1200);
+  } catch (err) {
+    showFeedback(err.message || 'Erro inesperado', 'error');
+  }
 }
 
-/* --------------------------- INICIALIZAÇÃO --------------------------- */
+/* ---------- Feedback helper ---------- */
+function showFeedback(message, type = "success") {
+  const feedback = safeGet('feedback-message');
+  if (!feedback) { alert(message); return; }
+  feedback.textContent = message;
+  feedback.className = 'feedback-message p-4 rounded-md text-sm ' + (type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800');
+  feedback.style.display = 'block';
+  setTimeout(() => { if (feedback) feedback.style.display = 'none'; }, 3500);
+}
 
+/* ---------- INICIALIZAÇÃO ---------- */
 document.addEventListener('DOMContentLoaded', () => {
+  // Event listeners só se os elementos existem
+  const nomeEl = safeGet('nome');
+  const emailEl = safeGet('email');
+  const senhaEl = safeGet('senha');
+  const confirmarEl = safeGet('confirmarSenha');
+  const form = safeGet('register-form');
 
-    document.getElementById('register-form')?.addEventListener('submit', handleRegister);
-
-    document.getElementById('nome')?.addEventListener('input', updateRegisterButtonState);
-    document.getElementById('email')?.addEventListener('input', checkEmailDomain);
-
-    document.getElementById('senha')?.addEventListener('input', () => {
-        checkPasswordStrength();
-        checkPasswordMatch();
+  if (nomeEl) nomeEl.addEventListener('input', updateRegisterButtonState);
+  if (emailEl) emailEl.addEventListener('input', () => { checkEmailDomain(); updateRegisterButtonState(); });
+  if (senhaEl) {
+    senhaEl.addEventListener('input', () => {
+      updatePasswordStrengthUI();
+      checkPasswordMatch();
+      updateRegisterButtonState(); // chama a função que não gera recursão
     });
+  }
+  if (confirmarEl) confirmarEl.addEventListener('input', () => { checkPasswordMatch(); updateRegisterButtonState(); });
+  if (form) form.addEventListener('submit', handleRegister);
 
-    document.getElementById('confirmarSenha')?.addEventListener('input', checkPasswordMatch);
+  // Inicializações seguras
+  checkEmailDomain();
+  updatePasswordStrengthUI();
+  checkPasswordMatch();
 
-    // Inicializar ao carregar
-    checkEmailDomain();
-    checkPasswordStrength();
-    checkPasswordMatch();
-
-    feather.replace();
+  // Feather replace com guard
+  if (window.feather) feather.replace();
 });
