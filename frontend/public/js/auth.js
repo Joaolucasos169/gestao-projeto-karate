@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://gestao-karate-backend.onrender.com/api/v1/users';
+const API_BASE_URL = 'https://gestao-karate-backend.onrender.com/api/v1';
 
 /* ---------- Helpers ---------- */
 function safeGet(id) {
@@ -204,4 +204,57 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Feather replace com guard
   if (window.feather) feather.replace();
+});
+
+/* ---------- LOGIN ---------- */
+
+async function handleLogin(event) {
+    event.preventDefault();
+
+    const email = safeGet('email')?.value.trim();
+    const senha = safeGet('senha')?.value.trim();
+
+    if (!email || !senha) {
+        showLoginError("Preencha todos os campos.");
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, senha })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            showLoginError(data.message || "Credenciais inválidas.");
+            return;
+        }
+
+        // Salvar token
+        localStorage.setItem("token", data.token);
+
+        // Redirecionar
+        window.location.href = "dashboard.html";
+
+    } catch (err) {
+        showLoginError("Erro ao conectar ao servidor.");
+    }
+}
+
+function showLoginError(msg) {
+    const box = safeGet("error-message");
+    if (!box) { alert(msg); return; }
+    box.classList.remove("hidden");
+    box.innerText = msg;
+}
+
+/* ---------- Ativar login se existir formulário ---------- */
+document.addEventListener("DOMContentLoaded", () => {
+    const loginForm = safeGet("login-form");
+    if (loginForm) {
+        loginForm.addEventListener("submit", handleLogin);
+    }
 });
