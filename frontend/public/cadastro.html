@@ -54,17 +54,13 @@
                  <p id="confirmar-senha-feedback" class="text-xs text-red-500 mt-1 hidden">As senhas não coincidem.</p>
             </div>
 
-            <div id="password-strength" class="mb-6 text-sm text-gray-600 password-strength">
-                <p class="font-medium mb-2">A senha deve conter:</p>
-                <ul>
-                    <li id="length" class="invalid"><i data-feather="x-circle"></i> Pelo menos 8 caracteres</li>
-                    <li id="lowercase" class="invalid"><i data-feather="x-circle"></i> Uma letra minúscula</li>
-                    <li id="uppercase" class="invalid"><i data-feather="x-circle"></i> Uma letra maiúscula</li>
-                    <li id="number" class="invalid"><i data-feather="x-circle"></i> Um número</li>
-                    <li id="special" class="invalid"><i data-feather="x-circle"></i> Um caractere especial (!@#$%^&*)</li>
-                </ul>
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Força da senha:</label>
+                <div class="w-full bg-gray-200 rounded h-2 overflow-hidden">
+                    <div id="passwordStrengthBar" class="h-2 transition-all duration-300"></div>
+                </div>
+                <p id="passwordStrengthText" class="text-xs mt-1 text-gray-600"></p>
             </div>
-
 
             <div>
                 <button type="submit" id="registerButton" disabled

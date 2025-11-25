@@ -20,8 +20,8 @@ function getToken() {
 }
 
 // ==================== FUNÇÃO: CARREGAR PROFESSORES ====================
-async function carregarProfessores() {
-  const select = document.getElementById("fk_professor");
+async function carregarProfessores(selectId = "fk_professor") {
+  const select = document.getElementById(selectId);
   select.innerHTML = `<option value="">Carregando professores...</option>`;
 
   try {
@@ -29,11 +29,9 @@ async function carregarProfessores() {
       headers: { Authorization: `Bearer ${getToken()}` },
     });
 
-    if (!response.ok) throw new Error(`Erro HTTP ${response.status}`);
-
     const professores = await response.json();
-    select.innerHTML = `<option value="">Selecione o professor</option>`;
 
+    select.innerHTML = `<option value="">Selecione o professor</option>`;
     professores.forEach((prof) => {
       const opt = document.createElement("option");
       opt.value = prof.id;
@@ -41,9 +39,7 @@ async function carregarProfessores() {
       select.appendChild(opt);
     });
   } catch (err) {
-    console.error("Erro ao carregar professores:", err);
     select.innerHTML = `<option value="">Erro ao carregar professores</option>`;
-    showFeedback("Erro ao carregar professores.", "error");
   }
 }
 
@@ -57,14 +53,7 @@ async function carregarAulas() {
       headers: { Authorization: `Bearer ${getToken()}` },
     });
 
-    if (!response.ok) throw new Error(`Erro HTTP ${response.status}`);
-
     const aulas = await response.json();
-
-    if (!aulas.length) {
-      tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-gray-500">Nenhuma aula cadastrada.</td></tr>`;
-      return;
-    }
 
     tbody.innerHTML = "";
     aulas.forEach((aula) => {
@@ -74,31 +63,116 @@ async function carregarAulas() {
         <td class="px-6 py-4">${aula.modalidade}</td>
         <td class="px-6 py-4">${(aula.dias_semana || []).join(", ")}</td>
         <td class="px-6 py-4">${aula.horario_inicio} - ${aula.horario_fim}</td>
-        <td class="px-6 py-4">${aula.professor_nome || "N/A"}</td>
-        <td class="px-6 py-4">—</td>
+        <td class="px-6 py-4">${aula.professor_nome}</td>
+
+        <td class="px-6 py-4 flex gap-4">
+            <button onclick="abrirModalEdicao(${aula.id})" class="text-blue-600 hover:underline">✏️ Editar</button>
+            <button onclick="excluirAula(${aula.id})" class="text-red-600 hover:underline">🗑 Excluir</button>
+        </td>
       `;
       tbody.appendChild(row);
     });
   } catch (err) {
-    console.error("Erro ao carregar aulas:", err);
     tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-red-500">Erro ao carregar aulas.</td></tr>`;
   }
 }
 
-// ==================== FUNÇÃO: CRIAR AULA ====================
+// ==================== EXCLUIR AULA ====================
+async function excluirAula(id) {
+  if (!confirm("Tem certeza que deseja excluir esta aula?")) return;
+
+  try {
+    const response = await fetch(`${API_BASE}/aulas/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${getToken()}` },
+    });
+
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.message);
+
+    showFeedback("Aula excluída com sucesso!");
+    carregarAulas();
+  } catch (err) {
+    showFeedback("Erro ao excluir aula.", "error");
+  }
+}
+
+// ==================== MODAL DE EDIÇÃO ====================
+async function abrirModalEdicao(id) {
+  document.getElementById("edit-modal").classList.remove("hidden");
+  document.getElementById("edit-id").value = id;
+
+  try {
+    const response = await fetch(`${API_BASE}/aulas/`, {
+      headers: { Authorization: `Bearer ${getToken()}` },
+    });
+
+    const aulas = await response.json();
+    const aula = aulas.find((a) => a.id === id);
+
+    document.getElementById("edit_nome_turma").value = aula.nome_turma;
+    document.getElementById("edit_modalidade").value = aula.modalidade;
+    document.getElementById("edit_horario_inicio").value = aula.horario_inicio;
+    document.getElementById("edit_horario_fim").value = aula.horario_fim;
+
+    await carregarProfessores("edit_fk_professor");
+    document.getElementById("edit_fk_professor").value = aula.fk_professor;
+
+    document.querySelectorAll(".edit-day").forEach((chk) => {
+      chk.checked = aula.dias_semana.includes(chk.value);
+    });
+  } catch {}
+}
+
+document.getElementById("close-edit").addEventListener("click", () => {
+  document.getElementById("edit-modal").classList.add("hidden");
+});
+
+// ==================== SALVAR EDIÇÃO ====================
+async function salvarEdicao() {
+  const id = document.getElementById("edit-id").value;
+
+  const dias = Array.from(
+    document.querySelectorAll(".edit-day:checked")
+  ).map((d) => d.value);
+
+  const data = {
+    nome_turma: document.getElementById("edit_nome_turma").value,
+    modalidade: document.getElementById("edit_modalidade").value,
+    horario_inicio: document.getElementById("edit_horario_inicio").value,
+    horario_fim: document.getElementById("edit_horario_fim").value,
+    fk_professor: document.getElementById("edit_fk_professor").value,
+    dias_semana: dias,
+  };
+
+  try {
+    const response = await fetch(`${API_BASE}/aulas/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getToken()}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.message);
+
+    showFeedback("Aula atualizada com sucesso!");
+    document.getElementById("edit-modal").classList.add("hidden");
+    carregarAulas();
+  } catch {
+    showFeedback("Erro ao atualizar aula.", "error");
+  }
+}
+
+// ==================== CRIAR AULA ====================
 async function handleAulaSubmit(event) {
   event.preventDefault();
 
   const diasSelecionados = Array.from(
     document.querySelectorAll(".day-checkbox:checked")
   ).map((el) => el.value);
-
-  if (!diasSelecionados.length) {
-    document.getElementById("dias-feedback").classList.remove("hidden");
-    return;
-  } else {
-    document.getElementById("dias-feedback").classList.add("hidden");
-  }
 
   const data = {
     nome_turma: document.getElementById("nome_turma").value.trim(),
@@ -120,28 +194,23 @@ async function handleAulaSubmit(event) {
     });
 
     const result = await response.json();
-    if (!response.ok) throw new Error(result.message || "Erro ao criar aula.");
+    if (!response.ok) throw new Error(result.message);
 
     showFeedback("Aula criada com sucesso!");
     event.target.reset();
     carregarAulas();
   } catch (err) {
-    console.error("Erro ao criar aula:", err);
     showFeedback(err.message, "error");
   }
 }
 
-// ==================== EVENTO DE LOGOUT ====================
-document.getElementById("logoutButton")?.addEventListener("click", () => {
-  localStorage.removeItem("token");
-  window.location.href = "login.html";
-});
-
-// ==================== INICIALIZAÇÃO ====================
+// ==================== EVENTOS ====================
 document.addEventListener("DOMContentLoaded", () => {
   carregarProfessores();
   carregarAulas();
 
   const form = document.getElementById("aula-form");
   if (form) form.addEventListener("submit", handleAulaSubmit);
+
+  document.getElementById("save-edit").addEventListener("click", salvarEdicao);
 });
