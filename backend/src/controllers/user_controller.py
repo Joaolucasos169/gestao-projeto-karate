@@ -62,3 +62,11 @@ def login_user():
         }), 200
     else:
         return jsonify({"message": "Credenciais inválidas."}), 401
+    
+@user_bp.route('/login', methods=['OPTIONS'])
+def login_options():
+    return '', 200
+
+@user_bp.route('/register', methods=['OPTIONS'])
+def register_options():
+    return '', 200
