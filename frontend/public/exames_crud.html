@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Gestão - Exames / Faixas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/feather-icons"></script>
+  <style>
+    .feedback-message { display: none; margin-bottom: 1rem; transition: opacity .3s; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body class="bg-gray-100 font-sans">
+  <div class="min-h-screen flex">
+    <!-- Sidebar (padrão) -->
+    <aside class="w-64 bg-indigo-800 text-white p-6">
+      <h1 class="text-2xl font-bold mb-8 text-center">Dojo Gestão</h1>
+      <nav>
+        <a href="dashboard.html" class="block py-3 px-4 rounded hover:bg-indigo-700">Dashboard</a>
+        <a href="alunos_crud.html" class="block py-3 px-4 rounded hover:bg-indigo-700">Alunos</a>
+        <a href="professores_crud.html" class="block py-3 px-4 rounded hover:bg-indigo-700">Professores</a>
+        <a href="aulas_crud.html" class="block py-3 px-4 rounded hover:bg-indigo-700">Aulas/Turmas</a>
+        <a href="exames_crud.html" class="block py-3 px-4 rounded bg-indigo-900 font-bold">Exames/Faixas</a>
+      </nav>
+    </aside>
+
+    <!-- Conteúdo -->
+    <main class="flex-1 p-8">
+      <h1 class="text-3xl font-bold mb-6">Exames e Troca de Faixa</h1>
+
+      <div id="feedback-message" class="feedback-message p-4 rounded-md text-sm"></div>
+
+      <!-- Formulário do Evento (quando salvar modal também salva) -->
+      <section class="bg-white p-6 rounded shadow mb-8">
+        <h2 class="text-xl font-semibold mb-4">Criar novo exame / evento</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Nome do Evento</label>
+            <input id="exame_nome" class="mt-1 block w-full border px-3 py-2 rounded" placeholder="Ex: Exame de Faixa Junho/2025" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Data</label>
+            <input id="exame_data" type="date" class="mt-1 block w-full border px-3 py-2 rounded" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Hora</label>
+            <input id="exame_hora" type="time" class="mt-1 block w-full border px-3 py-2 rounded" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Local</label>
+            <input id="exame_local" class="mt-1 block w-full border px-3 py-2 rounded" placeholder="Ex: Dojô central" />
+          </div>
+        </div>
+
+        <div class="mt-4 flex items-center justify-between">
+          <p class="text-sm text-gray-600">Selecione alunos abaixo e clique em "Visualizar selecionados" para finalizar.</p>
+          <div class="flex gap-2">
+            <button id="btnViewSelected" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Visualizar selecionados</button>
+            <button id="btnCreateExame" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Criar Exame</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tabela de Alunos (botão "Adicionar ao exame") -->
+      <section class="bg-white p-6 rounded shadow mb-8">
+        <h2 class="text-xl font-semibold mb-4">Lista de Alunos (Adicionar ao exame)</h2>
+
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Nome</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Data Nasc.</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Faixa</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="alunos-tbody" class="bg-white divide-y divide-gray-200">
+              <tr><td colspan="4" class="py-4 text-center text-gray-500">Carregando alunos...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Lista de Exames Cadastrados -->
+      <section class="bg-white p-6 rounded shadow">
+        <h2 class="text-xl font-semibold mb-4">Exames Cadastrados</h2>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Evento</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Data</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Hora</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Local</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Alunos</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="exames-tbody" class="bg-white divide-y divide-gray-200">
+              <tr><td colspan="6" class="py-4 text-center text-gray-500">Carregando exames...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modal de Selecionados -->
+  <div id="modalSelected" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-lg max-w-2xl w-full p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold">Alunos Selecionados</h3>
+        <button id="closeModal" class="text-gray-600">Fechar ✖</button>
+      </div>
+
+      <div id="selected-list" class="max-h-60 overflow-y-auto mb-4">
+        <!-- Lista preenchida por JS -->
+      </div>
+
+      <div class="flex justify-between">
+        <div class="text-sm text-gray-600">Revisar antes de criar o exame.</div>
+        <div class="flex gap-2">
+          <button id="btnRemoveSelected" class="bg-red-600 text-white px-4 py-2 rounded">Remover selecionados</button>
+          <button id="btnConfirmCreate" class="bg-green-600 text-white px-4 py-2 rounded">Confirmar criação</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/exames_crud_logic.js"></script>
+  <script>feather.replace();</script>
+</body>
+</html>
