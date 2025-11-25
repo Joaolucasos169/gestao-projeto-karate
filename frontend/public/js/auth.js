@@ -152,7 +152,7 @@ async function handleRegister(event) {
 
   // envio para API...
   try {
-    const response = await fetch(`${API_BASE_URL}/register`, {
+    const response = await fetch(`${API_BASE_URL}/users/register`, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({ nome, email, senha })
@@ -220,7 +220,7 @@ async function handleLogin(event) {
     }
 
     try {
-        const response = await fetch(`${API_BASE_URL}/login`, {
+        const response = await fetch(`${API_BASE_URL}/users/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, senha })
