@@ -1,5 +1,7 @@
 // ==================== DASHBOARD PRINCIPAL ====================
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  console.log("Dashboard carregando...");
+
   // --- Lógica de Verificação de Login e Logout ---
   const token = localStorage.getItem('token');
   const userData = localStorage.getItem('user');
@@ -9,7 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const statsAlunosElement = document.getElementById('stats-total-alunos');
   const statsProfessoresElement = document.getElementById('stats-professores');
 
-  if (!token || !userData) {
+  // Protege para evitar erro de sessão expirada por carregamento rápido
+  if (!token || !userData || userData.trim() === "") {
+    console.warn("TOKEN OU USER AUSENTE NO DASHBOARD", { token, userData });
     alert("Sessão expirada. Faça login novamente.");
     window.location.href = 'index.html';
     return;
@@ -24,12 +28,14 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
+  // Exibir nome do usuário
   if (user && user.nome && userNameElement) {
     userNameElement.textContent = user.nome.split(' ')[0];
   } else if (userNameElement) {
     userNameElement.textContent = "Usuário";
   }
 
+  // --- Função de Logout Global ---
   function handleLogout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -39,78 +45,82 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (logoutButton) logoutButton.addEventListener('click', handleLogout);
 
-  // ==================== FUNÇÃO GENÉRICA PARA BUSCAR DADOS ====================
-  async function fetchData(url, token) {
+  // ==================== FETCH PADRÃO ====================
+  async function fetchData(url) {
     try {
       const response = await fetch(url, {
         method: 'GET',
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}` }
       });
+
       if (response.status === 401) {
-        console.error(`Erro 401: Token inválido/expirado ao buscar ${url}`);
+        console.error("⚠ Token expirado ao tentar: ", url);
         handleLogout();
         return null;
       }
+
       if (!response.ok) {
-        console.error(`Erro ${response.status} ao buscar ${url}`);
+        console.error(`Erro ${response.status} ao acessar ${url}`);
         return [];
       }
+
       return await response.json();
     } catch (error) {
-      console.error(`Falha de rede ao buscar ${url}:`, error);
+      console.error(`Erro de rede ao acessar ${url}:`, error);
       return [];
     }
   }
 
-  // ==================== ESTATÍSTICAS ====================
+  // ==================== ESTATÍSTICAS DE ALUNOS ====================
   async function loadAlunoStats() {
-    const API_ALUNOS_URL = 'https://gestao-karate-backend.onrender.com/api/v1/alunos/';
-    const alunos = await fetchData(API_ALUNOS_URL, token);
-    if (!alunos || alunos === null) return;
+    const API = 'https://gestao-karate-backend.onrender.com/api/v1/alunos/';
 
-    // Atualiza contador
-    if (statsAlunosElement) statsAlunosElement.textContent = alunos.length;
+    const alunos = await fetchData(API);
+    if (!alunos) return;
 
-    // ---- Calcular Faixa Etária ----
+    statsAlunosElement.textContent = alunos.length;
+
     const agora = new Date();
     const faixas = { "Até 10": 0, "11-15": 0, "16-18": 0, "19+": 0 };
+    const sexos = { Masculino: 0, Feminino: 0 };
 
-    alunos.forEach((a) => {
+    alunos.forEach(a => {
+      // Sexo
+      if (a.sexo === "Masculino") sexos.Masculino++;
+      else if (a.sexo === "Feminino") sexos.Feminino++;
+
+      // Idade
       if (!a.data_nascimento) return;
       const nasc = new Date(a.data_nascimento);
       const idade = agora.getFullYear() - nasc.getFullYear();
+
       if (idade <= 10) faixas["Até 10"]++;
       else if (idade <= 15) faixas["11-15"]++;
       else if (idade <= 18) faixas["16-18"]++;
       else faixas["19+"]++;
     });
 
-    // ---- Calcular Sexo ----
-    const sexos = { Masculino: 0, Feminino: 0 };
-    alunos.forEach((a) => {
-      if (a.sexo === "Masculino") sexos.Masculino++;
-      else if (a.sexo === "Feminino") sexos.Feminino++;
-    });
-
     renderCharts(faixas, sexos);
   }
 
+  // ==================== ESTATÍSTICAS DE PROFESSORES ====================
   async function loadProfessorStats() {
-    const API_PROFESSORES_URL = 'https://gestao-karate-backend.onrender.com/api/v1/professores/';
-    const professores = await fetchData(API_PROFESSORES_URL, token);
-    if (statsProfessoresElement && professores !== null)
+    const API = 'https://gestao-karate-backend.onrender.com/api/v1/professores/';
+    const professores = await fetchData(API);
+
+    if (professores) {
       statsProfessoresElement.textContent = professores.length;
+    }
   }
 
   // ==================== GRÁFICOS ====================
   function renderCharts(faixas, sexos) {
-    // Garante que o Chart.js está disponível
     if (typeof Chart === "undefined") {
-      console.error("Chart.js não carregado!");
+      console.error("Chart.js não está carregado!");
       return;
     }
 
-    // Gráfico de Faixa Etária
+    // Faixa Etária
     const ctxFaixa = document.getElementById("graficoFaixaEtaria");
     if (ctxFaixa) {
       new Chart(ctxFaixa, {
@@ -123,18 +133,22 @@ document.addEventListener('DOMContentLoaded', () => {
               data: Object.values(faixas),
               backgroundColor: "rgba(79, 70, 229, 0.6)",
               borderRadius: 8,
-            },
-          ],
+            }
+          ]
         },
         options: {
           responsive: true,
-          plugins: { legend: { display: false } },
-          scales: { y: { beginAtZero: true } },
-        },
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
       });
     }
 
-    // Gráfico de Sexo
+    // Sexo
     const ctxSexo = document.getElementById("graficoSexo");
     if (ctxSexo) {
       new Chart(ctxSexo, {
@@ -145,25 +159,22 @@ document.addEventListener('DOMContentLoaded', () => {
             {
               data: Object.values(sexos),
               backgroundColor: ["#4F46E5", "#EC4899"],
-              borderWidth: 1,
-            },
-          ],
+            }
+          ]
         },
         options: {
           responsive: true,
-          plugins: {
-            legend: { position: "bottom" },
-          },
-        },
+          plugins: { legend: { position: "bottom" } }
+        }
       });
     }
   }
 
   // ==================== INICIALIZAÇÃO ====================
-  loadAlunoStats();
-  loadProfessorStats();
+  await loadAlunoStats();
+  await loadProfessorStats();
 
-  // --- LÓGICA DO MENU MÓVEL ---
+  // --- MENU MOBILE ---
   const sidebar = document.getElementById('sidebar');
   const menuButton = document.getElementById('mobile-menu-button');
   const mainContent = document.querySelector('main');
@@ -175,7 +186,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const icon = menuButton.querySelector('i');
       if (icon) {
-        icon.setAttribute('data-feather', sidebar.classList.contains('hidden') ? 'menu' : 'x');
+        icon.setAttribute(
+          'data-feather',
+          sidebar.classList.contains('hidden') ? 'menu' : 'x'
+        );
         feather.replace();
       }
     });
@@ -193,4 +207,5 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
   }
+
 });
