@@ -101,7 +101,7 @@ async function createExame() {
     return;
   }
 
-  const payload = { nome_evento: nome, data, hora, local, alunos: selectedStudents };
+  const payload = { nome_evento: nome, data, hora, local, alunos_ids: selectedStudents };
 
   try {
     const res = await fetch(`${API_BASE}/exames/`, {
@@ -212,7 +212,7 @@ async function abrirEditarExame(id) {
           data: document.getElementById('exame_data').value,
           hora: document.getElementById('exame_hora').value,
           local: document.getElementById('exame_local').value,
-          alunos: selectedStudents
+          alunos_ids: selectedStudents
         };
         const r = await fetch(`${API_BASE}/exames/${id}`, {
           method: 'PATCH',
