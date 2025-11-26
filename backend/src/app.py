@@ -47,6 +47,13 @@ def create_app():
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
     jwt.init_app(app)
 
+    # CONFIG ESSENCIAIS PARA TOKEN VIA HEADER
+    app.config["JWT_TOKEN_LOCATION"] = ["headers"]
+    app.config["JWT_HEADER_NAME"] = "Authorization"
+    app.config["JWT_HEADER_TYPE"] = "Bearer"
+
+    jwt.init_app(app)
+
     # BANCO
     db_url = os.getenv("DATABASE_URL")
     if not db_url:
