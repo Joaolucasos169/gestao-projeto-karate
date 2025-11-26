@@ -1,5 +1,5 @@
 // ==================== CONFIGURAÇÃO DA API ====================
-const API_BASE = "https://gestao-karate-backend.onrender.com/api/v1";
+const API_BASE_URL = "https://gestao-karate-backend.onrender.com/api/v1";
 
 // ==================== FUNÇÃO: FEEDBACK ====================
 function showFeedback(message, type = "success") {
@@ -25,7 +25,7 @@ async function carregarProfessores(selectId = "fk_professor") {
   select.innerHTML = `<option value="">Carregando professores...</option>`;
 
   try {
-    const response = await fetch(`${API_BASE}/professores/`, {
+    const response = await fetch(`${API_BASE_URL}/professores/`, {
       headers: { Authorization: `Bearer ${getToken()}` },
     });
 
@@ -49,7 +49,7 @@ async function carregarAulas() {
   tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-gray-500">Carregando...</td></tr>`;
 
   try {
-    const response = await fetch(`${API_BASE}/aulas/`, {
+    const response = await fetch(`${API_BASE_URL}/aulas/`, {
       headers: { Authorization: `Bearer ${getToken()}` },
     });
 
@@ -82,7 +82,7 @@ async function excluirAula(id) {
   if (!confirm("Tem certeza que deseja excluir esta aula?")) return;
 
   try {
-    const response = await fetch(`${API_BASE}/aulas/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/aulas/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${getToken()}` },
     });
@@ -103,7 +103,7 @@ async function abrirModalEdicao(id) {
   document.getElementById("edit-id").value = id;
 
   try {
-    const response = await fetch(`${API_BASE}/aulas/`, {
+    const response = await fetch(`${API_BASE_URL}/aulas/`, {
       headers: { Authorization: `Bearer ${getToken()}` },
     });
 
@@ -146,7 +146,7 @@ async function salvarEdicao() {
   };
 
   try {
-    const response = await fetch(`${API_BASE}/aulas/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/aulas/${id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -184,7 +184,7 @@ async function handleAulaSubmit(event) {
   };
 
   try {
-    const response = await fetch(`${API_BASE}/aulas/`, {
+    const response = await fetch(`${API_BASE_URL}/aulas/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
