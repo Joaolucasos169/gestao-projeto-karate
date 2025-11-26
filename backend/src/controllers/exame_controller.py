@@ -11,7 +11,10 @@ exame_bp = Blueprint('exame_bp', __name__)
 def create_exame():
     data = request.get_json() or {}
     required = ['nome_evento', 'data', 'hora', 'local', 'alunos_ids']
-    missing = [f for f in required if not data.get(f) and data.get(f) != []]
+    missing = [
+    f for f in required 
+    if f not in data or data[f] is None or (isinstance(data[f], str) and not data[f].strip())
+]
     if missing:
         return jsonify({'message': f'Campos faltando: {", ".join(missing)}'}), 400
 
