@@ -235,7 +235,8 @@ async function handleLogin(event) {
         }
 
         // Salvar token
-        localStorage.setItem("token", data.token || data.access_token);
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
 
         // Redirecionar
         window.location.href = "dashboard.html";
