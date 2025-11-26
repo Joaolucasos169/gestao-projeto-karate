@@ -20,6 +20,7 @@ from .controllers.user_controller import user_bp
 from .controllers.aluno_controller import aluno_bp
 from .controllers.professor_controller import professor_bp
 from .controllers.aula_controller import aula_bp
+from .controllers.exame_controller import exame_bp
 
 jwt = JWTManager()
 migrate = Migrate()
@@ -68,7 +69,8 @@ def create_app():
     app.register_blueprint(aluno_bp, url_prefix="/api/v1/alunos")
     app.register_blueprint(professor_bp, url_prefix="/api/v1/professores")
     app.register_blueprint(aula_bp, url_prefix="/api/v1/aulas")
-
+    app.register_blueprint(exame_bp, url_prefix="/api/v1/exames")
+    
     @app.route("/")
     def index():
         return jsonify({"message": "API de Gestão de Karatê está online!"})
