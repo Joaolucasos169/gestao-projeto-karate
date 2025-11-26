@@ -158,6 +158,7 @@ async function handleRegister(event) {
       body: JSON.stringify({ nome, email, senha })
     });
     const data = await response.json();
+    console.log("DATA LOGIN:", data);
     if (!response.ok) throw new Error(data.message || 'Erro ao criar conta');
     showFeedback('Conta criada com sucesso!');
     setTimeout(() => window.location.href = 'index.html', 1200);
@@ -227,14 +228,14 @@ async function handleLogin(event) {
         });
 
         const data = await response.json();
-
+        console.log("DATA LOGIN:", data);
         if (!response.ok) {
             showLoginError(data.message || "Credenciais inválidas.");
             return;
         }
 
         // Salvar token
-        localStorage.setItem("token", data.token);
+        localStorage.setItem("token", data.token || data.access_token);
 
         // Redirecionar
         window.location.href = "dashboard.html";
