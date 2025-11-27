@@ -25,7 +25,7 @@ async function carregarProfessores(selectId = "fk_professor") {
   select.innerHTML = `<option value="">Carregando professores...</option>`;
 
   try {
-    const response = await fetch(`${API_BASE_URL}/professores/`, {
+    const response = await fetch(`${API_BASE_URL}/professores`, {
       headers: { Authorization: `Bearer ${getToken()}` },
     });
 
