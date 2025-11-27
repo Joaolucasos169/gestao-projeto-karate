@@ -5,215 +5,290 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard - Dojo Gestão</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Carrega a biblioteca de ícones Feather -->
     <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-      /* Garante que a sidebar (menu) tenha prioridade quando desliza */
-      #sidebar {
-        z-index: 20;
-      }
-      /* Garante que o header móvel tenha prioridade */
-      #mobile-header {
-        z-index: 10;
-      }
+      #sidebar { z-index: 20; }
+      #mobile-header { z-index: 10; }
     </style>
   </head>
   <body class="bg-gray-100 font-sans">
     <div class="flex h-screen">
-      <!-- 
-          Barra Lateral (Menu) 
-          - ID 'sidebar' para o JavaScript
-          - 'hidden' (escondida) por defeito
-          - 'md:flex' (visível) em ecrãs médios e maiores
-          - 'absolute' para flutuar em cima do conteúdo no móvel
-        -->
-      <aside class="w-64 bg-indigo-900 text-white p-6 flex flex-col justify-between h-screen sticky top-0">
-    
-    <div>
-      <h1 class="text-2xl font-bold mb-8 text-center border-b border-indigo-700 pb-4">Dojo Gestão</h1>
-      <nav class="space-y-2">
-        <a href="dashboard.html" class="flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
-          <i data-feather="home"></i> Dashboard
-        </a>
-        <a href="alunos_crud.html" class="flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
-          <i data-feather="users"></i> Alunos
-        </a>
-        <a href="professores_crud.html" class="flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
-           <i data-feather="briefcase"></i> Professores
-        </a>
-        <a href="aulas_crud.html" class="flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
-          <i data-feather="calendar"></i> Aulas/Turmas
-        </a>
-        <a href="exames_crud.html" class="flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
-          <i data-feather="award"></i> Exames/Faixas
-        </a>
-      </nav>
-    </div>
+      
+      <aside id="sidebar" class="w-64 bg-indigo-900 text-white p-6 flex flex-col justify-between h-screen sticky top-0 hidden md:flex">
+        <div>
+          <h1 class="text-2xl font-bold mb-8 text-center border-b border-indigo-700 pb-4">Dojo Gestão</h1>
+          <nav class="space-y-2">
+            <a href="dashboard.html" class="flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
+              <i data-feather="home"></i> Dashboard
+            </a>
+            <a href="alunos_crud.html" class="flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
+              <i data-feather="users"></i> Alunos
+            </a>
+            <a href="professores_crud.html" class="flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
+                <i data-feather="briefcase"></i> Professores
+            </a>
+            <a href="aulas_crud.html" class="flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
+              <i data-feather="calendar"></i> Aulas/Turmas
+            </a>
+            <a href="exames_crud.html" class="flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
+              <i data-feather="award"></i> Exames/Faixas
+            </a>
+          </nav>
+        </div>
 
-    <button onclick="logout()" class="flex items-center gap-3 py-3 px-4 rounded text-indigo-100 hover:bg-red-600 hover:text-white transition w-full">
-      <i data-feather="log-out"></i> Sair do Sistema
-    </button>
-</aside>
+        <button onclick="logout()" class="flex items-center gap-3 py-3 px-4 rounded text-indigo-100 hover:bg-red-600 hover:text-white transition w-full">
+          <i data-feather="log-out"></i> Sair do Sistema
+        </button>
+      </aside>
 
-      <!-- Conteúdo Principal -->
-      <main class="flex-1 flex flex-col overflow-y-auto">
-        <!-- 
-              Header Móvel (Botão Hambúrguer)
-              - 'md:hidden' (visível) apenas em ecrãs pequenos
-            -->
-        <header
-          id="mobile-header"
-          class="md:hidden bg-white shadow-md p-4 flex justify-between items-center sticky top-0"
-        >
+      <main class="flex-1 flex flex-col h-screen overflow-hidden">
+        
+        <header id="mobile-header" class="md:hidden bg-white shadow-md p-4 flex justify-between items-center sticky top-0">
           <h1 class="text-xl font-bold text-indigo-800">Dojo Gestão</h1>
-          <button
-            id="mobile-menu-button"
-            class="text-gray-700 focus:outline-none"
-          >
+          <button id="mobile-menu-button" class="text-gray-700 focus:outline-none" onclick="document.getElementById('sidebar').classList.toggle('hidden')">
             <i data-feather="menu" class="h-6 w-6"></i>
           </button>
         </header>
 
-        <!-- Área de Conteúdo Real -->
-        <div class="p-6 md:p-10">
+        <div class="flex-1 overflow-y-auto p-6 md:p-10">
+          
           <div class="flex justify-between items-center mb-8">
             <h1 class="text-3xl font-bold text-gray-800">Visão Geral</h1>
-            <span class="text-lg text-gray-700 hidden md:block"
-              >Olá, <span id="user-name">Usuário</span>!</span
-            >
+            <span class="text-lg text-gray-700 hidden md:block">Olá, <span class="font-bold text-indigo-700">Sensei</span>!</span>
           </div>
 
-          <!-- Cards de Estatísticas -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-lg shadow-md">
-              <h2 class="text-sm font-medium text-gray-500 mb-2">
-                Total de Alunos
-              </h2>
-              <p
-                id="stats-total-alunos"
-                class="text-3xl font-bold text-indigo-600"
-              >
-                0
-              </p>
+            <div class="bg-white p-6 rounded-lg shadow border-l-4 border-indigo-600 flex items-center justify-between hover:shadow-lg transition">
+                <div>
+                    <p class="text-sm text-gray-500 font-medium">Total de Alunos</p>
+                    <h3 class="text-3xl font-bold text-gray-800" id="kpi-total-alunos">...</h3>
+                </div>
+                <div class="p-3 bg-indigo-100 rounded-full text-indigo-600">
+                    <i data-feather="users" class="w-8 h-8"></i>
+                </div>
             </div>
-            <div class="bg-white p-6 rounded-lg shadow-md">
-              <h2 class="text-sm font-medium text-gray-500 mb-2">
-                Próximas Graduações
-              </h2>
-              <p
-                id="stats-graduacoes"
-                class="text-3xl font-bold text-green-500"
-              >
-                0
-              </p>
+
+            <div class="bg-white p-6 rounded-lg shadow border-l-4 border-green-500 flex items-center justify-between hover:shadow-lg transition">
+                <div>
+                    <p class="text-sm text-gray-500 font-medium">Alunos Ativos</p>
+                    <h3 class="text-3xl font-bold text-gray-800" id="kpi-ativos">...</h3>
+                </div>
+                <div class="p-3 bg-green-100 rounded-full text-green-600">
+                    <i data-feather="check-circle" class="w-8 h-8"></i>
+                </div>
             </div>
-            <div class="bg-white p-6 rounded-lg shadow-md">
-              <h2 class="text-sm font-medium text-gray-500 mb-2">
-                Professores Ativos
-              </h2>
-              <p
-                id="stats-professores"
-                class="text-3xl font-bold text-yellow-500"
-              >
-                0
-              </p>
+
+            <div class="bg-white p-6 rounded-lg shadow border-l-4 border-yellow-500 flex items-center justify-between hover:shadow-lg transition">
+                <div>
+                    <p class="text-sm text-gray-500 font-medium">Próximo Exame</p>
+                    <h3 class="text-xl font-bold text-gray-800" id="kpi-prox-exame">...</h3>
+                    <p class="text-xs text-gray-400" id="kpi-prox-exame-local">Aguardando dados</p>
+                </div>
+                <div class="p-3 bg-yellow-100 rounded-full text-yellow-600">
+                    <i data-feather="award" class="w-8 h-8"></i>
+                </div>
             </div>
           </div>
 
-          <!-- Gráficos -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <!-- Gráfico de Faixa Etária -->
-            <div class="bg-white p-6 rounded-lg shadow-md">
-              <h2 class="text-lg font-semibold text-gray-700 mb-4">
-                Distribuição por Faixa Etária
-              </h2>
-              <canvas id="graficoFaixaEtaria"></canvas>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-lg font-bold text-gray-700 mb-4 flex items-center gap-2">
+                    <i data-feather="bar-chart-2" class="w-5 h-5 text-indigo-500"></i> Distribuição por Graduação
+                </h3>
+                <div class="relative h-64">
+                    <canvas id="chartFaixas"></canvas>
+                </div>
             </div>
 
-            <!-- Gráfico de Sexo -->
-            <div class="bg-white p-6 rounded-lg shadow-md">
-              <h2 class="text-lg font-semibold text-gray-700 mb-4">
-                Distribuição por Sexo
-              </h2>
-              <canvas id="graficoSexo"></canvas>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-lg font-bold text-gray-700 mb-4 flex items-center gap-2">
+                    <i data-feather="pie-chart" class="w-5 h-5 text-pink-500"></i> Distribuição por Sexo
+                </h3>
+                <div class="relative h-64 flex justify-center">
+                    <canvas id="chartSexo"></canvas>
+                </div>
             </div>
-          </div>
-
-          <!-- CDN do Chart.js -->
-          <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-          <!-- Atividades Recentes -->
-          <div class="bg-white p-8 rounded-lg shadow-md">
-            <h2 class="text-2xl font-semibold text-gray-700 mb-6">
-              Atividades Recentes
-            </h2>
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
-                  >
-                    Ação
-                  </th>
-                  <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
-                  >
-                    Usuário
-                  </th>
-                  <th
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
-                  >
-                    Data
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
-                <tr>
-                  <td class="px-6 py-4 text-sm text-gray-700">
-                    Aluno Adicionado
-                  </td>
-                  <td class="px-6 py-4 text-sm text-gray-500">Você</td>
-                  <td class="px-6 py-4 text-sm text-gray-500">Hoje</td>
-                </tr>
-              </tbody>
-            </table>
           </div>
         </div>
       </main>
     </div>
 
-    <!-- Scripts JS -->
-    <!-- Carrega o script do dashboard.js (caminho corrigido para subir da pasta /public/) -->
-    <script src="js/dashboard.js"></script>
     <script>
-      // Ativa os ícones Feather (Menu, etc.)
-      feather.replace();
-    </script>
-  <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    // 1. Pega o nome do arquivo atual da URL (ex: "alunos_crud.html")
-    const currentPage = window.location.pathname.split("/").pop() || "dashboard.html"; // Se estiver na raiz, assume dashboard
+      const API_BASE = "https://gestao-karate-backend.onrender.com/api/v1";
 
-    // 2. Seleciona todos os links do menu
-    const links = document.querySelectorAll("nav a");
+      function getToken() { return localStorage.getItem('token'); }
 
-    links.forEach(link => {
-      // 3. Pega o href do link (ex: "alunos_crud.html")
-      const linkPage = link.getAttribute("href");
-
-      // 4. Se o link for igual a página atual, adiciona o destaque
-      if (linkPage === currentPage) {
-        // Remove a classe de hover padrão para não dar conflito visual
-        link.classList.remove("hover:bg-indigo-700"); 
+      document.addEventListener("DOMContentLoaded", () => {
+        feather.replace();
+        highlightActiveMenu();
         
-        // Adiciona as classes de "Ativo" (Fundo mais claro, negrito e borda amarela)
-        link.classList.add("bg-indigo-800", "font-bold", "border-l-4", "border-yellow-400");
+        if (!getToken()) {
+             window.location.href = 'index.html';
+        } else {
+             fetchDashboardData();
+        }
+      });
+
+      // Menu Ativo
+      function highlightActiveMenu() {
+        const currentPage = window.location.pathname.split("/").pop() || "dashboard.html";
+        document.querySelectorAll("nav a").forEach(link => {
+          if (link.getAttribute("href") === currentPage) {
+            link.classList.remove("hover:bg-indigo-700"); 
+            link.classList.add("bg-indigo-800", "font-bold", "border-l-4", "border-yellow-400");
+          }
+        });
       }
-    });
-    
-    // Inicializa os ícones (caso ainda não tenha feito)
-    if (typeof feather !== 'undefined') feather.replace();
-  });
-</script>
+
+      function logout() {
+        if(confirm("Deseja realmente sair?")) {
+            localStorage.removeItem('token');
+            window.location.href = 'index.html';
+        }
+      }
+
+      // ================= PROCESSAMENTO DE DADOS REAIS =================
+      async function fetchDashboardData() {
+        try {
+            // 1. Buscar ALUNOS
+            const resAlunos = await fetch(`${API_BASE}/alunos/`, { headers: { Authorization: `Bearer ${getToken()}` }});
+            const alunos = await resAlunos.json();
+
+            // 2. Buscar EXAMES
+            const resExames = await fetch(`${API_BASE}/exames/`, { headers: { Authorization: `Bearer ${getToken()}` }});
+            const exames = await resExames.json();
+
+            // --- CÁLCULOS KPI ---
+            const totalAlunos = alunos.length;
+            const ativos = alunos.filter(a => a.ativo === true).length; // Supondo que venha true/false
+
+            document.getElementById('kpi-total-alunos').textContent = totalAlunos;
+            document.getElementById('kpi-ativos').textContent = ativos;
+
+            // Lógica do Próximo Exame
+            const hoje = new Date();
+            // Filtra exames futuros e ordena por data
+            const proximosExames = exames
+                .filter(e => new Date(e.data) >= hoje)
+                .sort((a, b) => new Date(a.data) - new Date(b.data));
+
+            if (proximosExames.length > 0) {
+                const prox = proximosExames[0];
+                const dataFormatada = new Date(prox.data).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+                document.getElementById('kpi-prox-exame').textContent = dataFormatada;
+                document.getElementById('kpi-prox-exame-local').textContent = prox.local || "Local a definir";
+            } else {
+                document.getElementById('kpi-prox-exame').textContent = "-";
+                document.getElementById('kpi-prox-exame-local').textContent = "Sem exames agendados";
+            }
+
+            // --- CÁLCULOS PARA GRÁFICOS ---
+            
+            // 1. Distribuição por Sexo
+            let masc = 0, fem = 0;
+            alunos.forEach(a => {
+                const s = (a.sexo || "").toLowerCase();
+                if (s.startsWith('m')) masc++;
+                else if (s.startsWith('f')) fem++;
+            });
+
+            // 2. Distribuição por Faixa (Ordenada)
+            const ordemFaixas = ['Branca', 'Amarela', 'Vermelha', 'Laranja', 'Verde', 'Roxa', 'Marrom', 'Preta'];
+            const coresFaixas = ['#e5e7eb', '#fcd34d', '#ef4444', '#f97316', '#22c55e', '#a855f7', '#78350f', '#1f2937'];
+            
+            // Inicializa contadores com 0
+            const contagemFaixas = {};
+            ordemFaixas.forEach(cor => contagemFaixas[cor] = 0);
+
+            // Conta os alunos
+            alunos.forEach(a => {
+                // Tenta achar a faixa do aluno na lista, se não achar, conta como Branca ou ignora
+                let faixa = a.grau_atual || "Branca";
+                // Normaliza primeira letra maiúscula (ex: "branca" -> "Branca")
+                faixa = faixa.charAt(0).toUpperCase() + faixa.slice(1).toLowerCase();
+                
+                if (contagemFaixas.hasOwnProperty(faixa)) {
+                    contagemFaixas[faixa]++;
+                } else {
+                    // Se for uma faixa que não está na lista padrão, decide onde colocar (ex: Branca)
+                    contagemFaixas['Branca']++;
+                }
+            });
+
+            const dadosFaixas = ordemFaixas.map(cor => contagemFaixas[cor]);
+
+
+            // --- RENDERIZAR GRÁFICOS ---
+            renderCharts(dadosFaixas, coresFaixas, masc, fem, totalAlunos);
+
+        } catch (error) {
+            console.error("Erro ao carregar dashboard:", error);
+            // Opcional: mostrar mensagem de erro na tela
+        }
+      }
+
+      function renderCharts(dadosFaixas, coresFaixas, masc, fem, totalAlunos) {
+        
+        // Gráfico Faixas
+        new Chart(document.getElementById('chartFaixas'), {
+            type: 'bar',
+            data: {
+                labels: ['Branca', 'Amarela', 'Vermelha', 'Laranja', 'Verde', 'Roxa', 'Marrom', 'Preta'],
+                datasets: [{
+                    label: 'Alunos',
+                    data: dadosFaixas,
+                    backgroundColor: coresFaixas,
+                    borderWidth: 1,
+                    borderColor: '#9ca3af'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+            }
+        });
+
+        // Gráfico Sexo
+        new Chart(document.getElementById('chartSexo'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Masculino', 'Feminino'],
+                datasets: [{
+                    data: [masc, fem],
+                    backgroundColor: ['#4f46e5', '#ec4899'],
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: { legend: { position: 'bottom' } }
+            },
+            plugins: [{
+                id: 'textCenter',
+                beforeDraw: function(chart) {
+                    var width = chart.width, height = chart.height, ctx = chart.ctx;
+                    ctx.restore();
+                    var fontSize = (height / 114).toFixed(2);
+                    ctx.font = "bold " + fontSize + "em sans-serif";
+                    ctx.textBaseline = "middle";
+                    ctx.fillStyle = "#374151";
+                    
+                    var text = totalAlunos,
+                        textX = Math.round((width - ctx.measureText(text).width) / 2),
+                        textY = height / 2;
+                    
+                    ctx.fillText(text, textX, textY);
+                    ctx.save();
+                }
+            }]
+        });
+      }
+    </script>
   </body>
 </html>

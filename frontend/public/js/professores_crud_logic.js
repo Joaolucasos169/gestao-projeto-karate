@@ -101,13 +101,13 @@ async function loadProfessores() {
 
             const editButton = document.createElement('button');
             editButton.className = "text-indigo-600 hover:text-indigo-900 mr-3";
-            editButton.textContent = 'Editar';
+            editButton.textContent = '✏️ Editar';
             editButton.onclick = () => openEditProfModal(prof.id);
             acoesTd.appendChild(editButton);
 
             const deleteButton = document.createElement('button');
             deleteButton.className = "text-red-600 hover:text-red-900";
-            deleteButton.textContent = 'Inativar';
+            deleteButton.textContent = '❌ Inativar';
             deleteButton.onclick = () => deleteProfessor(prof.id);
             acoesTd.appendChild(deleteButton);
 

@@ -100,8 +100,8 @@ function displayAlunos(searchTerm = '') {
                     <td class="px-6 py-4 text-sm text-gray-500">${aluno.telefone || '-'}</td>
                     <td class="px-6 py-4 text-sm text-gray-500">${dataUltGradFormatada}</td>
                     <td class="px-6 py-4 text-sm font-medium">
-                        <button onclick="openEditModal(${aluno.id})" class="text-indigo-600 hover:text-indigo-900 mr-2">Editar</button>
-                        <button onclick="deleteAluno(${aluno.id})" class="text-red-600 hover:text-red-900">Inativar</button>
+                        <button onclick="openEditModal(${aluno.id})" class="text-indigo-600 hover:text-indigo-900 mr-2">✏️ Editar</button>
+                        <button onclick="deleteAluno(${aluno.id})" class="text-red-600 hover:text-red-900">❌ Inativar</button>
                     </td>
                 </tr>`;
         });
