@@ -1,4 +1,3 @@
-// ==================== CONFIGURAÇÃO DA API ====================
 const API_BASE_URL = "https://gestao-karate-backend.onrender.com/api/v1";
 
 // ==================== FUNÇÃO: FEEDBACK ====================
@@ -19,27 +18,50 @@ function getToken() {
   return localStorage.getItem("token");
 }
 
-// ==================== FUNÇÃO: CARREGAR PROFESSORES ====================
+// ==================== FUNÇÃO: CARREGAR PROFESSORES (CORRIGIDA) ====================
 async function carregarProfessores(selectId = "fk_professor") {
   const select = document.getElementById(selectId);
+  
+  // Segurança: Se o elemento não existir na tela, para a execução para não dar erro de JS
+  if (!select) {
+    console.warn(`Elemento select com id '${selectId}' não encontrado.`);
+    return;
+  }
+
   select.innerHTML = `<option value="">Carregando professores...</option>`;
 
   try {
-    const response = await fetch(`${API_BASE_URL}/professores`, {
+    const response = await fetch(`${API_BASE_URL}/professores/`, { 
       headers: { Authorization: `Bearer ${getToken()}` },
     });
 
+    if (!response.ok) {
+        throw new Error(`Erro na API: ${response.status}`);
+    }
+
     const professores = await response.json();
 
+    // Limpa e adiciona a opção padrão
     select.innerHTML = `<option value="">Selecione o professor</option>`;
+
+    // Verifica se a lista veio vazia
+    if (professores.length === 0) {
+        const opt = document.createElement("option");
+        opt.textContent = "Nenhum professor cadastrado";
+        select.appendChild(opt);
+        return;
+    }
+
     professores.forEach((prof) => {
       const opt = document.createElement("option");
       opt.value = prof.id;
-      opt.textContent = prof.nome;
+      opt.textContent = prof.nome; 
       select.appendChild(opt);
     });
+
   } catch (err) {
-    select.innerHTML = `<option value="">Erro ao carregar professores</option>`;
+    console.error("Erro ao carregar professores:", err); // Mostra o erro real no console
+    select.innerHTML = `<option value="">Erro ao carregar</option>`;
   }
 }
 
