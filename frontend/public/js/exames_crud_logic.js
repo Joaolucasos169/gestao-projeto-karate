@@ -1,6 +1,4 @@
 const API_BASE = "https://gestao-karate-backend.onrender.com/api/v1";
-
-// ==================== UTILITÁRIOS ====================
 function getToken() { 
   return localStorage.getItem('token'); 
 }
@@ -29,7 +27,6 @@ async function loadAlunos() {
   tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-gray-500">Carregando alunos...</td></tr>`;
 
   try {
-    // CORREÇÃO: Adicionada a barra "/" no final da URL
     const res = await fetch(`${API_BASE}/alunos/`, { 
       headers: { Authorization: `Bearer ${getToken()}` } 
     });
@@ -171,6 +168,7 @@ async function loadExames() {
   tbody.innerHTML = `<tr><td colspan="6" class="py-4 text-center text-gray-500">Carregando exames...</td></tr>`;
 
   try {
+    // CORREÇÃO: Adicionada a barra "/" no final da URL
     const res = await fetch(`${API_BASE}/exames/`, { 
       headers: { Authorization: `Bearer ${getToken()}` } 
     });
@@ -225,7 +223,7 @@ async function excluirExame(id) {
     if(!confirm("Tem certeza que deseja excluir este exame?")) return;
 
     try {
-        const res = await fetch(`${API_BASE}/exames/${id}`, { 
+        const res = await fetch(`${API_BASE}/exames/${id}`, { // ID geralmente não precisa de barra no final, mas depende do backend. Normalmente é /exames/1
             method: "DELETE",
             headers: { Authorization: `Bearer ${getToken()}` }
         });
