@@ -300,5 +300,31 @@
 
     <script src="js/aulas_crud_logic.js"></script>
     <script>feather.replace();</script>
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    // 1. Pega o nome do arquivo atual da URL (ex: "alunos_crud.html")
+    const currentPage = window.location.pathname.split("/").pop() || "dashboard.html"; // Se estiver na raiz, assume dashboard
+
+    // 2. Seleciona todos os links do menu
+    const links = document.querySelectorAll("nav a");
+
+    links.forEach(link => {
+      // 3. Pega o href do link (ex: "alunos_crud.html")
+      const linkPage = link.getAttribute("href");
+
+      // 4. Se o link for igual a página atual, adiciona o destaque
+      if (linkPage === currentPage) {
+        // Remove a classe de hover padrão para não dar conflito visual
+        link.classList.remove("hover:bg-indigo-700"); 
+        
+        // Adiciona as classes de "Ativo" (Fundo mais claro, negrito e borda amarela)
+        link.classList.add("bg-indigo-800", "font-bold", "border-l-4", "border-yellow-400");
+      }
+    });
+    
+    // Inicializa os ícones (caso ainda não tenha feito)
+    if (typeof feather !== 'undefined') feather.replace();
+  });
+</script>
   </body>
 </html>
