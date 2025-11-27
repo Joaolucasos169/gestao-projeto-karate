@@ -1,194 +1,203 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Gestão - Exames / Faixas</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/feather-icons"></script>
-  <style>
-    .feedback-message { display: none; margin-bottom: 1rem; transition: opacity .3s; }
-    .hidden { display: none; }
-  </style>
-</head>
-<body class="bg-gray-100 font-sans">
-  <div class="min-h-screen flex">
-    
-    <aside class="w-64 bg-indigo-900 text-white p-6 flex flex-col justify-between">
-      <div>
-        <h1 class="text-2xl font-bold mb-8 text-center border-b border-indigo-700 pb-4">Dojo Gestão</h1>
-        <nav class="space-y-2">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestão - Exames / Faixas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <style>
+      .feedback-message { display: none; margin-bottom: 1rem; transition: opacity .3s; }
+      .hidden { display: none; }
+      /* Correção para garantir que o Modal fique acima de tudo no celular */
+      #modal-selecionados { z-index: 50; }
+    </style>
+  </head>
+  <body class="bg-gray-100 font-sans">
+    <div class="flex h-screen overflow-hidden">
+      
+      <aside id="sidebar" class="w-64 bg-indigo-900 text-white p-6 flex flex-col justify-between h-screen fixed inset-y-0 left-0 transform -translate-x-full md:translate-x-0 md:relative transition-transform duration-300 z-30">
+        <div>
+          <h1 class="text-2xl font-bold mb-8 text-center border-b border-indigo-700 pb-4">Dojo Gestão</h1>
           <nav class="space-y-2">
-            <a href="dashboard.html" class="nav-link flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
+            <a href="dashboard.html" class="flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
               <i data-feather="home"></i> Dashboard
             </a>
-            <a href="alunos_crud.html" class="nav-link flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
+            <a href="alunos_crud.html" class="flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
               <i data-feather="users"></i> Alunos
             </a>
-            <a href="professores_crud.html" class="nav-link flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
-              <i data-feather="briefcase"></i> Professores
+            <a href="professores_crud.html" class="flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
+               <i data-feather="briefcase"></i> Professores
             </a>
-            <a href="aulas_crud.html" class="nav-link flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
+            <a href="aulas_crud.html" class="flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
               <i data-feather="calendar"></i> Aulas/Turmas
             </a>
-            <a href="exames_crud.html" class="nav-link flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
+            <a href="exames_crud.html" class="flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
               <i data-feather="award"></i> Exames/Faixas
             </a>
           </nav>
-      </div>
-
-      <button onclick="logout()" class="flex items-center gap-3 py-3 px-4 rounded text-indigo-100 hover:bg-red-600 hover:text-white transition mt-8 w-full">
-        <i data-feather="log-out"></i> Sair do Sistema
-      </button>
-    </aside>
-
-    <main class="flex-1 p-8 overflow-y-auto h-screen">
-      <h1 class="text-3xl font-bold mb-6 text-gray-800">Gerenciamento de Exames</h1>
-
-      <div id="feedback-message" class="feedback-message p-4 rounded-md text-sm border"></div>
-
-      <section class="bg-white p-6 rounded-lg shadow-md mb-8 border border-gray-200">
-        <h2 class="text-xl font-semibold mb-6 flex items-center gap-2 text-indigo-700">
-            <i data-feather="plus-circle"></i> Criar Novo Exame
-        </h2>
-
-        <form id="form-exame" onsubmit="event.preventDefault();">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Nome do Evento *</label>
-                <input id="exame_nome" class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="Ex: Exame de Faixa Junho/2025" />
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Local *</label>
-                <input id="exame_local" class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="Ex: Dojô Central" />
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Data *</label>
-                <input id="exame_data" type="date" class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
-              </div>
-
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Hora *</label>
-                <input id="exame_hora" type="time" class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
-              </div>
-            </div>
-
-            <div class="flex items-center justify-between bg-gray-50 p-4 rounded border border-gray-200">
-              <div class="text-sm text-gray-600">
-                  <span class="font-bold text-indigo-600">Passo 1:</span> Selecione os alunos na lista abaixo.<br>
-                  <span class="font-bold text-indigo-600">Passo 2:</span> Clique em Criar Exame.
-              </div>
-              <div class="flex gap-3">
-                <button type="button" id="btn-visualizar-selecionados" class="flex items-center gap-2 bg-indigo-100 text-indigo-700 border border-indigo-200 px-4 py-2 rounded hover:bg-indigo-200 transition font-medium">
-                    <i data-feather="eye" class="w-4 h-4"></i> Ver Selecionados <span id="contador-selecionados">(0)</span>
-                </button>
-                
-                <button type="button" id="btn-salvar-exame" class="flex items-center gap-2 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 shadow-md transition font-bold">
-                    <i data-feather="check"></i> Criar Exame
-                </button>
-              </div>
-            </div>
-        </form>
-      </section>
-
-      <section class="bg-white p-6 rounded-lg shadow-md mb-8 border border-gray-200">
-        <h2 class="text-xl font-semibold mb-4 text-gray-700">Selecione os Alunos</h2>
-        <div class="overflow-x-auto max-h-96 overflow-y-auto border rounded">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-100 sticky top-0">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data Nasc.</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Faixa Atual</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ação</th>
-              </tr>
-            </thead>
-            <tbody id="alunos-tbody" class="bg-white divide-y divide-gray-200">
-              </tbody>
-          </table>
         </div>
-      </section>
 
-      <section class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-        <h2 class="text-xl font-semibold mb-4 text-gray-700">Histórico de Exames</h2>
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-100">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Evento</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data/Hora</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Local</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Participantes</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
-              </tr>
-            </thead>
-            <tbody id="exames-tbody" class="bg-white divide-y divide-gray-200">
-              </tbody>
-          </table>
+        <button onclick="logout()" class="flex items-center gap-3 py-3 px-4 rounded text-indigo-100 hover:bg-red-600 hover:text-white transition w-full">
+          <i data-feather="log-out"></i> Sair do Sistema
+        </button>
+      </aside>
+
+      <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black opacity-50 z-20 hidden md:hidden"></div>
+
+      <main class="flex-1 flex flex-col h-screen overflow-hidden relative">
+        
+        <header class="bg-white shadow-md p-4 flex justify-between items-center md:hidden sticky top-0 z-20">
+            <h1 class="text-xl font-bold text-indigo-800">Dojo Gestão</h1>
+            <button onclick="toggleSidebar()" class="text-gray-600 hover:text-indigo-800 focus:outline-none">
+              <i data-feather="menu" class="h-6 w-6"></i>
+            </button>
+        </header>
+
+        <div class="flex-1 p-4 md:p-8 overflow-y-auto">
+          <h1 class="text-2xl md:text-3xl font-bold mb-6 text-gray-800">Gerenciamento de Exames</h1>
+
+          <div id="feedback-message" class="feedback-message p-4 rounded-md text-sm border"></div>
+
+          <section class="bg-white p-4 md:p-6 rounded-lg shadow-md mb-8 border border-gray-200">
+            <h2 class="text-xl font-semibold mb-6 flex items-center gap-2 text-indigo-700">
+                <i data-feather="plus-circle"></i> Criar Novo Exame
+            </h2>
+
+            <form id="form-exame" onsubmit="event.preventDefault();">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nome do Evento *</label>
+                    <input id="exame_nome" class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="Ex: Exame de Faixa Junho" />
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Local *</label>
+                    <input id="exame_local" class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="Ex: Dojô Central" />
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Data *</label>
+                    <input id="exame_data" type="date" class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
+                  </div>
+
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Hora *</label>
+                    <input id="exame_hora" type="time" class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
+                  </div>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded border border-gray-200">
+                  <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                      <div class="text-sm text-gray-600 text-center md:text-left">
+                          <span class="font-bold text-indigo-600">Passo 1:</span> Selecione alunos abaixo.<br>
+                          <span class="font-bold text-indigo-600">Passo 2:</span> Crie o exame.
+                      </div>
+                      
+                      <div class="flex flex-col w-full md:w-auto md:flex-row gap-3">
+                        <button type="button" id="btn-visualizar-selecionados" class="flex justify-center items-center gap-2 bg-indigo-100 text-indigo-700 border border-indigo-200 px-4 py-2 rounded hover:bg-indigo-200 transition font-medium w-full md:w-auto">
+                            <i data-feather="eye" class="w-4 h-4"></i> Ver Selecionados <span id="contador-selecionados">(0)</span>
+                        </button>
+                        
+                        <button type="button" id="btn-salvar-exame" class="flex justify-center items-center gap-2 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 shadow-md transition font-bold w-full md:w-auto">
+                            <i data-feather="check"></i> Criar Exame
+                        </button>
+                      </div>
+                  </div>
+                </div>
+            </form>
+          </section>
+
+          <section class="bg-white p-4 md:p-6 rounded-lg shadow-md mb-8 border border-gray-200">
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">Selecione os Alunos</h2>
+            
+            <div class="overflow-x-auto border rounded">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-100 sticky top-0">
+                  <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data Nasc.</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Faixa Atual</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ação</th>
+                  </tr>
+                </thead>
+                <tbody id="alunos-tbody" class="bg-white divide-y divide-gray-200">
+                  </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="bg-white p-4 md:p-6 rounded-lg shadow-md border border-gray-200">
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">Histórico de Exames</h2>
+            
+            <div class="overflow-x-auto border rounded">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-100">
+                  <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Evento</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data/Hora</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Local</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Participantes</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="exames-tbody" class="bg-white divide-y divide-gray-200">
+                  </tbody>
+              </table>
+            </div>
+          </section>
         </div>
-      </section>
-    </main>
-  </div>
+      </main>
+    </div>
 
-  <div id="modal-selecionados" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 backdrop-blur-sm">
-    <div class="bg-white rounded-lg shadow-2xl max-w-lg w-full p-6 transform transition-all">
-      <div class="flex justify-between items-center mb-4 border-b pb-2">
-        <h3 class="text-lg font-bold text-gray-800">Alunos Selecionados</h3>
-        <button id="btn-fechar-modal" class="text-gray-400 hover:text-gray-600 transition">
-            <i data-feather="x"></i>
-        </button>
-      </div>
+    <div id="modal-selecionados" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center backdrop-blur-sm p-4">
+      <div class="bg-white rounded-lg shadow-2xl w-full max-w-lg p-6 transform transition-all relative">
+        <div class="flex justify-between items-center mb-4 border-b pb-2">
+          <h3 class="text-lg font-bold text-gray-800">Alunos Selecionados</h3>
+          <button id="btn-fechar-modal" class="text-gray-400 hover:text-gray-600 transition">
+              <i data-feather="x"></i>
+          </button>
+        </div>
 
-      <ul id="lista-alunos-selecionados" class="max-h-60 overflow-y-auto mb-6 space-y-2">
-        </ul>
+        <ul id="lista-alunos-selecionados" class="max-h-60 overflow-y-auto mb-6 space-y-2 pr-2">
+          </ul>
 
-      <div class="flex justify-end pt-2">
-        <button onclick="document.getElementById('modal-selecionados').classList.add('hidden')" class="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300 font-medium">
-            Fechar
-        </button>
+        <div class="flex justify-end pt-2">
+          <button onclick="document.getElementById('modal-selecionados').classList.add('hidden')" class="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300 font-medium w-full md:w-auto">
+              Fechar
+          </button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <script>
-    function logout() {
-      if(confirm("Deseja realmente sair?")) {
-        localStorage.removeItem('token');
-        window.location.href = 'index.html'; // Ou sua página de login
+    <script>
+      function toggleSidebar() {
+          const sidebar = document.getElementById('sidebar');
+          const overlay = document.getElementById('sidebar-overlay');
+          sidebar.classList.toggle('-translate-x-full');
+          overlay.classList.toggle('hidden');
       }
-    }
-    // Inicializa ícones
-    feather.replace();
-  </script>
 
-  <script src="js/exames_crud_logic.js"></script>
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    // 1. Pega o nome do arquivo atual da URL (ex: "alunos_crud.html")
-    const currentPage = window.location.pathname.split("/").pop() || "dashboard.html"; // Se estiver na raiz, assume dashboard
+      function logout() {
+        if(confirm("Deseja realmente sair?")) {
+          localStorage.removeItem('token');
+          window.location.href = 'index.html';
+        }
+      }
 
-    // 2. Seleciona todos os links do menu
-    const links = document.querySelectorAll("nav a");
-
-    links.forEach(link => {
-      // 3. Pega o href do link (ex: "alunos_crud.html")
-      const linkPage = link.getAttribute("href");
-
-      // 4. Se o link for igual a página atual, adiciona o destaque
-      if (linkPage === currentPage) {
-        // Remove a classe de hover padrão para não dar conflito visual
-        link.classList.remove("hover:bg-indigo-700"); 
+      document.addEventListener("DOMContentLoaded", () => {
+        // Menu Ativo
+        const currentPage = window.location.pathname.split("/").pop() || "dashboard.html";
+        document.querySelectorAll("nav a").forEach(link => {
+            if(link.getAttribute("href") === currentPage) {
+                link.classList.remove("hover:bg-indigo-700");
+                link.classList.add("bg-indigo-800", "font-bold", "border-l-4", "border-yellow-400");
+            }
+        });
         
-        // Adiciona as classes de "Ativo" (Fundo mais claro, negrito e borda amarela)
-        link.classList.add("bg-indigo-800", "font-bold", "border-l-4", "border-yellow-400");
-      }
-    });
-    
-    // Inicializa os ícones (caso ainda não tenha feito)
-    if (typeof feather !== 'undefined') feather.replace();
-  });
-</script>
-</body>
+        feather.replace();
+      });
+    </script>
+    <script src="js/exames_crud_logic.js"></script>
+  </body>
 </html>
