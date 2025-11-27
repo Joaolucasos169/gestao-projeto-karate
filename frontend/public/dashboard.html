@@ -27,39 +27,33 @@
           - 'md:flex' (visível) em ecrãs médios e maiores
           - 'absolute' para flutuar em cima do conteúdo no móvel
         -->
-      <aside
-        id="sidebar"
-        class="w-64 bg-indigo-800 text-white p-6 shadow-lg flex flex-col absolute md:relative h-full hidden md:flex transition-transform duration-300 ease-in-out"
-      >
-        <h1 class="text-2xl font-bold mb-8 text-center">Dojo Gestão</h1>
-        <nav class="flex-1">
-          <nav class="space-y-2">
-            <a href="dashboard.html" class="nav-link flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
-              <i data-feather="home"></i> Dashboard
-            </a>
-            <a href="alunos_crud.html" class="nav-link flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
-              <i data-feather="users"></i> Alunos
-            </a>
-            <a href="professores_crud.html" class="nav-link flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
-              <i data-feather="briefcase"></i> Professores
-            </a>
-            <a href="aulas_crud.html" class="nav-link flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
-              <i data-feather="calendar"></i> Aulas/Turmas
-            </a>
-            <a href="exames_crud.html" class="nav-link flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
-              <i data-feather="award"></i> Exames/Faixas
-            </a>
-          </nav>
+      <aside class="w-64 bg-indigo-900 text-white p-6 flex flex-col justify-between h-screen sticky top-0">
+    
+    <div>
+      <h1 class="text-2xl font-bold mb-8 text-center border-b border-indigo-700 pb-4">Dojo Gestão</h1>
+      <nav class="space-y-2">
+        <a href="dashboard.html" class="flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
+          <i data-feather="home"></i> Dashboard
+        </a>
+        <a href="alunos_crud.html" class="flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
+          <i data-feather="users"></i> Alunos
+        </a>
+        <a href="professores_crud.html" class="flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
+           <i data-feather="briefcase"></i> Professores
+        </a>
+        <a href="aulas_crud.html" class="flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
+          <i data-feather="calendar"></i> Aulas/Turmas
+        </a>
+        <a href="exames_crud.html" class="flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
+          <i data-feather="award"></i> Exames/Faixas
+        </a>
+      </nav>
+    </div>
 
-        <div class="mt-auto">
-          <button
-            id="logoutButton"
-            class="w-full bg-red-500 text-white py-2 px-4 rounded-lg shadow hover:bg-red-600 transition duration-200"
-          >
-            Sair do Sistema
-          </button>
-        </div>
-      </aside>
+    <button onclick="logout()" class="flex items-center gap-3 py-3 px-4 rounded text-indigo-100 hover:bg-red-600 hover:text-white transition w-full">
+      <i data-feather="log-out"></i> Sair do Sistema
+    </button>
+</aside>
 
       <!-- Conteúdo Principal -->
       <main class="flex-1 flex flex-col overflow-y-auto">

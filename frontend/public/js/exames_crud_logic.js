@@ -61,7 +61,7 @@ function renderAlunos() {
     tr.innerHTML = `
       <td class="px-6 py-4 whitespace-nowrap">${aluno.nome}</td>
       <td class="px-6 py-4 whitespace-nowrap">${aluno.data_nascimento || "-"}</td>
-      <td class="px-6 py-4 whitespace-nowrap">${aluno.faixa || "-"}</td>
+      <td class="px-6 py-4 whitespace-nowrap">${aluno.grau_atual || "Branca"}</td>
       <td class="px-6 py-4 whitespace-nowrap">
         <button id="btn-aluno-${aluno.id}" type="button" 
           class="${btnClass} text-white px-3 py-1 rounded transition-colors text-sm font-medium" 
@@ -82,7 +82,7 @@ function toggleStudentSelection(id) {
   } else {
     selectedStudents.push(id);
   }
-  renderAlunos(); // Atualiza cores dos botões
+  renderAlunos(); 
 }
 
 function updateCount() {
