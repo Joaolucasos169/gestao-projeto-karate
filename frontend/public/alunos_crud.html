@@ -1,359 +1,252 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestão de Alunos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <style>
+      .feedback-message { display: none; transition: opacity 0.3s ease; }
+      .hidden { display: none; }
+    </style>
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gerenciamento de Alunos</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/feather-icons"></script>
-  <style>
-    .feedback-message {
-      display: none;
-      margin-bottom: 1rem;
-    }
-
-    #edit-modal {
-      display: none;
-      z-index: 50;
-      background-color: rgba(0, 0, 0, 0.5);
-    }
-  </style>
-</head>
-
-<body class="bg-gray-100 font-sans">
-  <div class="flex h-screen bg-gray-100">
-    <!-- Sidebar -->
-    <aside id="sidebar" class="w-64 bg-indigo-800 text-white p-6 shadow-lg flex-col justify-between
-               fixed inset-y-0 left-0 transform -translate-x-full 
-               md:translate-x-0 md:flex md:relative transition-transform duration-300 z-30">
-      <div>
-        <h1 class="text-2xl font-bold mb-8 text-center">Dojo Gestão</h1>
-        <nav class="flex-1">
+  <body class="bg-gray-100 font-sans">
+    <div class="flex h-screen">
+      
+      <aside id="sidebar" class="w-64 bg-indigo-900 text-white p-6 flex flex-col justify-between h-screen fixed inset-y-0 left-0 transform -translate-x-full md:translate-x-0 md:relative transition-transform duration-300 z-30">
+        <div>
+          <h1 class="text-2xl font-bold mb-8 text-center border-b border-indigo-700 pb-4">Dojo Gestão</h1>
           <nav class="space-y-2">
-            <a href="dashboard.html" class="nav-link flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
+            <a href="dashboard.html" class="flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
               <i data-feather="home"></i> Dashboard
             </a>
-            <a href="alunos_crud.html" class="nav-link flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
+            <a href="alunos_crud.html" class="flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
               <i data-feather="users"></i> Alunos
             </a>
-            <a href="professores_crud.html" class="nav-link flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
+            <a href="professores_crud.html" class="flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
               <i data-feather="briefcase"></i> Professores
             </a>
-            <a href="aulas_crud.html" class="nav-link flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
+            <a href="aulas_crud.html" class="flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
               <i data-feather="calendar"></i> Aulas/Turmas
             </a>
-            <a href="exames_crud.html" class="nav-link flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
+            <a href="exames_crud.html" class="flex items-center gap-3 py-3 px-4 rounded hover:bg-indigo-700 transition">
               <i data-feather="award"></i> Exames/Faixas
             </a>
-        </nav>
-      </div>
-
-      <div class="mt-auto">
-        <button onclick="logout()" class="flex items-center gap-3 py-3 px-4 rounded text-indigo-100 hover:bg-red-600 hover:text-white transition mt-8 w-full">
-          <i data-feather="log-out"></i> Sair do Sistema
-        </button>
-      </div>
-    </aside>
-
-    <!-- Main content -->
-    <div class="flex-1 flex flex-col">
-      <header class="bg-white shadow-md p-4 flex justify-between items-center md:hidden sticky top-0 z-20">
-        <h1 class="text-2xl font-bold text-indigo-800">Dojo Gestão</h1>
-        <button id="mobile-menu-button" class="text-gray-600 hover:text-indigo-800">
-          <i data-feather="menu" class="h-6 w-6"></i>
-        </button>
-      </header>
-
-      <main class="flex-1 p-6 md:p-10 overflow-y-auto">
-        <h1 class="text-3xl font-bold text-gray-800 mb-8">
-          Gerenciamento de Alunos
-        </h1>
-
-        <div id="feedback-message" class="feedback-message p-4 mb-4 rounded-md text-sm"></div>
-
-        <!-- Formulário de Cadastro -->
-        <section class="bg-white p-8 rounded-lg shadow-md mb-10">
-          <h2 class="text-2xl font-semibold text-gray-700 mb-6">
-            Cadastrar Novo Aluno
-          </h2>
-
-          <form id="aluno-form" onsubmit="handleAlunoSubmit(event)">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
-              <div>
-                <label for="nome" class="block text-sm font-medium text-gray-700">Nome Completo *</label>
-                <input type="text" id="nome" name="nome" required
-                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
-              </div>
-
-              <div>
-                <label for="cpf" class="block text-sm font-medium text-gray-700">CPF *</label>
-                <input type="text" id="cpf" name="cpf" required placeholder="Apenas números"
-                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
-              </div>
-
-              <div>
-                <label for="data_nascimento" class="block text-sm font-medium text-gray-700">Data de Nascimento
-                  *</label>
-                <input type="date" id="data_nascimento" name="data_nascimento" required
-                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
-              <div>
-                <label for="sexo" class="block text-sm font-medium text-gray-700">Sexo *</label>
-                <select id="sexo" name="sexo" required
-                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                  <option value="">Selecione...</option>
-                  <option value="Masculino">Masculino</option>
-                  <option value="Feminino">Feminino</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
-              <div>
-                <label for="telefone" class="block text-sm font-medium text-gray-700">Telefone (Celular)</label>
-                <input type="tel" id="telefone" name="telefone" placeholder="(00) 90000-0000"
-                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
-              </div>
-
-              <div class="md:col-span-2">
-                <label for="nome_pais" class="block text-sm font-medium text-gray-700">Nome dos Pais/Responsável</label>
-                <input type="text" id="nome_pais" name="nome_pais"
-                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
-              </div>
-            </div>
-
-            <div class="mb-4">
-              <label for="endereco" class="block text-sm font-medium text-gray-700">Endereço Completo</label>
-              <textarea id="endereco" name="endereco" rows="2" placeholder="Rua, Número, Bairro, Cidade - Estado"
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></textarea>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <div>
-                <label for="grau_atual" class="block text-sm font-medium text-gray-700">Graduação Atual</label>
-                <select id="grau_atual" name="grau_atual"
-                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 bg-white">
-                  <option>Branca</option>
-                  <option>Amarela</option>
-                  <option>Laranja</option>
-                  <option>Verde</option>
-                  <option>Roxa</option>
-                  <option>Marrom</option>
-                  <option>Preta</option>
-                </select>
-              </div>
-
-              <div>
-                <label for="data_ultima_graduacao" class="block text-sm font-medium text-gray-700">Data da Última
-                  Graduação</label>
-                <input type="date" id="data_ultima_graduacao" name="data_ultima_graduacao"
-                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
-              </div>
-            </div>
-
-            <div class="flex justify-end">
-              <button type="submit"
-                class="bg-indigo-600 text-white py-2 px-6 rounded-lg shadow font-medium hover:bg-indigo-700 transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                Cadastrar Aluno
-              </button>
-            </div>
-          </form>
-        </section>
-
-        <!-- Tabela de Alunos -->
-        <section class="bg-white p-8 rounded-lg shadow-md mt-10">
-          <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-            <h2 class="text-2xl font-semibold text-gray-700">
-              Alunos Ativos
-            </h2>
-            <div class="relative w-full md:w-auto md:max-w-xs">
-              <input type="text" id="search-input" placeholder="Buscar por Nome ou CPF..."
-                class="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 pl-10" />
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd"
-                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                    clip-rule="evenodd" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CPF</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Graduação
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sexo</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Telefone
-                  </th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Últ.
-                    Graduação</th>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
-                </tr>
-              </thead>
-
-              <tbody id="alunos-tbody" class="bg-white divide-y divide-gray-200">
-                <tr id="loading-row">
-                  <td colspan="7" class="text-center py-4 text-gray-500">Carregando alunos...</td>
-                </tr>
-                <tr id="error-row" style="display: none;">
-                  <td colspan="7" class="text-center py-4 text-red-500">Falha ao conectar ao servidor.</td>
-                </tr>
-                <tr id="no-results-row" style="display: none;">
-                  <td colspan="7" class="text-center py-4 text-gray-500">Nenhum aluno encontrado.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-      </main>
-    </div>
-
-    <!-- Modal de Edição -->
-    <div id="edit-modal"
-      class="fixed inset-0 bg-gray-600 bg-opacity-75 overflow-y-auto h-full w-full flex items-center justify-center">
-      <div class="relative bg-white p-8 rounded-lg shadow-xl w-full max-w-2xl mx-4">
-        <div class="flex justify-between items-center mb-6">
-          <h2 class="text-2xl font-semibold text-gray-700">Editar Aluno</h2>
-          <button onclick="closeEditModal()" class="text-gray-500 hover:text-gray-700 text-3xl font-light">
-            &times;
-          </button>
+          </nav>
         </div>
 
-        <form id="edit-aluno-form" onsubmit="handleUpdateAluno(event)">
-          <input type="hidden" id="edit-aluno-id" name="id" />
+        <button onclick="logout()" class="flex items-center gap-3 py-3 px-4 rounded text-indigo-100 hover:bg-red-600 hover:text-white transition w-full">
+          <i data-feather="log-out"></i> Sair do Sistema
+        </button>
+      </aside>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-            <div>
-              <label for="edit-nome" class="block text-sm font-medium text-gray-700">Nome Completo *</label>
-              <input type="text" id="edit-nome" name="nome" required
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" />
+      <div class="flex-1 flex flex-col h-screen overflow-hidden">
+        
+        <header class="bg-white shadow-md p-4 flex justify-between items-center md:hidden sticky top-0 z-20">
+          <h1 class="text-xl font-bold text-indigo-800">Dojo Gestão</h1>
+          <button class="text-gray-600 hover:text-indigo-800" onclick="document.getElementById('sidebar').classList.toggle('-translate-x-full')">
+            <i data-feather="menu" class="h-6 w-6"></i>
+          </button>
+        </header>
+
+        <main class="flex-1 p-6 md:p-10 overflow-y-auto">
+          <h1 class="text-3xl font-bold text-gray-800 mb-6">Gerenciamento de Alunos</h1>
+          <div id="feedback-message" class="feedback-message p-4 rounded-md text-sm mb-4"></div>
+
+          <section class="bg-white p-8 rounded-lg shadow-md mb-10">
+            <h2 class="text-2xl font-semibold text-gray-700 mb-6">Cadastrar Novo Aluno</h2>
+            <form id="aluno-form">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-700">Nome Completo *</label>
+                  <input type="text" id="nome" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">CPF *</label>
+                  <input type="text" id="cpf" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Data de Nascimento *</label>
+                  <input type="date" id="data_nascimento" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Sexo *</label>
+                  <select id="sexo" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white">
+                    <option value="">Selecione...</option>
+                    <option value="Masculino">Masculino</option>
+                    <option value="Feminino">Feminino</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Telefone</label>
+                  <input type="tel" id="telefone" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
+                </div>
+
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-700">Nome dos Pais/Responsáveis</label>
+                  <input type="text" id="nome_pais" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
+                </div>
+
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-700">Endereço</label>
+                  <input type="text" id="endereco" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Graduação Atual</label>
+                  <select id="grau_atual" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white">
+                    <option value="Branca">Branca</option>
+                    <option value="Amarela">Amarela</option>
+                    <option value="Vermelha">Vermelha</option>
+                    <option value="Laranja">Laranja</option>
+                    <option value="Verde">Verde</option>
+                    <option value="Roxa">Roxa</option>
+                    <option value="Marrom">Marrom</option>
+                    <option value="Preta">Preta</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Data Última Graduação</label>
+                  <input type="date" id="data_ultima_graduacao" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
+                </div>
+
+              </div>
+
+              <div class="flex justify-end mt-6">
+                <button type="submit" class="bg-indigo-600 text-white py-2 px-6 rounded-lg shadow hover:bg-indigo-700 transition font-medium">
+                  Cadastrar Aluno
+                </button>
+              </div>
+            </form>
+          </section>
+
+          <section class="bg-white p-8 rounded-lg shadow-md">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+              <h2 class="text-2xl font-semibold text-gray-700">Alunos Cadastrados</h2>
+              <div class="relative w-full md:w-64">
+                <input type="text" id="search-input" placeholder="Buscar por nome ou CPF..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500">
+                <i data-feather="search" class="absolute left-3 top-2.5 h-5 w-5 text-gray-400"></i>
+              </div>
             </div>
 
-            <div>
-              <label for="edit-cpf" class="block text-sm font-medium text-gray-700">CPF *</label>
-              <input type="text" id="edit-cpf" name="cpf" required
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" />
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nome</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">CPF</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Faixa</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sexo</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Telefone</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Últ. Graduação</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="alunos-tbody" class="bg-white divide-y divide-gray-200">
+                  </tbody>
+              </table>
             </div>
-          </div>
+          </section>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-            <div>
-              <label for="edit-data_nascimento" class="block text-sm font-medium text-gray-700">Data de Nascimento
-                *</label>
-              <input type="date" id="edit-data_nascimento" name="data_nascimento" required
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" />
-            </div>
-
-            <div>
-              <label for="edit-sexo" class="block text-sm font-medium text-gray-700">Sexo *</label>
-              <select id="edit-sexo" name="sexo" required
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white">
-                <option value="">Selecione...</option>
-                <option value="Masculino">Masculino</option>
-                <option value="Feminino">Feminino</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-            <div>
-              <label for="edit-telefone" class="block text-sm font-medium text-gray-700">Telefone</label>
-              <input type="tel" id="edit-telefone" name="telefone"
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" />
-            </div>
-          </div>
-
-          <div class="mb-4">
-            <label for="edit-nome_pais" class="block text-sm font-medium text-gray-700">Nome dos
-              Pais/Responsável</label>
-            <input type="text" id="edit-nome_pais" name="nome_pais"
-              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" />
-          </div>
-
-          <div class="mb-4">
-            <label for="edit-endereco" class="block text-sm font-medium text-gray-700">Endereço Completo</label>
-            <textarea id="edit-endereco" name="endereco" rows="2"
-              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"></textarea>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div>
-              <label for="edit-grau_atual" class="block text-sm font-medium text-gray-700">Graduação Atual</label>
-              <select id="edit-grau_atual" name="grau_atual"
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white">
-                <option>Branca</option>
-                <option>Amarela</option>
-                <option>Laranja</option>
-                <option>Verde</option>
-                <option>Roxa</option>
-                <option>Marrom</option>
-                <option>Preta</option>
-              </select>
-            </div>
-
-            <div>
-              <label for="edit-data_ultima_graduacao" class="block text-sm font-medium text-gray-700">Data da Última
-                Graduação</label>
-              <input type="date" id="edit-data_ultima_graduacao" name="data_ultima_graduacao"
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" />
-            </div>
-          </div>
-
-          <div class="flex justify-end mt-8 space-x-4">
-            <button type="button" onclick="closeEditModal()"
-              class="bg-gray-300 text-gray-700 py-2 px-6 rounded-lg shadow font-medium hover:bg-gray-400 transition duration-200">
-              Cancelar
-            </button>
-            <button type="submit"
-              class="bg-indigo-600 text-white py-2 px-6 rounded-lg shadow font-medium hover:bg-indigo-700 transition duration-200">
-              Salvar Alterações
-            </button>
-          </div>
-        </form>
+        </main>
       </div>
     </div>
-  </div>
 
-  <script src="js/dashboard.js"></script>
-  <script src="js/alunos_crud_logic.js"></script>
-  <script>
-    feather.replace();
-  </script>
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    // 1. Pega o nome do arquivo atual da URL (ex: "alunos_crud.html")
-    const currentPage = window.location.pathname.split("/").pop() || "dashboard.html"; // Se estiver na raiz, assume dashboard
+    <div id="edit-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50 backdrop-blur-sm overflow-y-auto">
+        <div class="bg-white p-6 rounded shadow-lg w-full max-w-2xl m-4">
+            <h2 class="text-xl font-bold mb-4 text-indigo-700">Editar Aluno</h2>
+            <form id="edit-aluno-form">
+                <input type="hidden" id="edit-aluno-id">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700">Nome</label>
+                        <input type="text" id="edit-nome" required class="w-full border p-2 rounded">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">CPF</label>
+                        <input type="text" id="edit-cpf" required class="w-full border p-2 rounded">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Data Nasc.</label>
+                        <input type="date" id="edit-data_nascimento" required class="w-full border p-2 rounded">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Sexo</label>
+                        <select id="edit-sexo" required class="w-full border p-2 rounded bg-white">
+                            <option value="Masculino">Masculino</option>
+                            <option value="Feminino">Feminino</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Telefone</label>
+                        <input type="text" id="edit-telefone" class="w-full border p-2 rounded">
+                    </div>
+                    <div class="md:col-span-2">
+                         <label class="block text-sm font-medium text-gray-700">Pais/Responsáveis</label>
+                         <input type="text" id="edit-nome_pais" class="w-full border p-2 rounded">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700">Endereço</label>
+                        <input type="text" id="edit-endereco" class="w-full border p-2 rounded">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Faixa Atual</label>
+                        <select id="edit-grau_atual" class="w-full border p-2 rounded bg-white">
+                            <option value="Branca">Branca</option>
+                            <option value="Amarela">Amarela</option>
+                            <option value="Vermelha">Vermelha</option>
+                            <option value="Laranja">Laranja</option>
+                            <option value="Verde">Verde</option>
+                            <option value="Roxa">Roxa</option>
+                            <option value="Marrom">Marrom</option>
+                            <option value="Preta">Preta</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Última Graduação</label>
+                        <input type="date" id="edit-data_ultima_graduacao" class="w-full border p-2 rounded">
+                    </div>
+                </div>
 
-    // 2. Seleciona todos os links do menu
-    const links = document.querySelectorAll("nav a");
+                <div class="flex justify-end gap-2 mt-6">
+                    <button type="button" onclick="closeEditModal()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Cancelar</button>
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-    links.forEach(link => {
-      // 3. Pega o href do link (ex: "alunos_crud.html")
-      const linkPage = link.getAttribute("href");
+    <script>
+        // Função de Logout (FORA do DOMContentLoaded)
+        function logout() {
+            if(confirm("Deseja realmente sair?")) {
+                localStorage.removeItem('token');
+                window.location.href = 'index.html';
+            }
+        }
 
-      // 4. Se o link for igual a página atual, adiciona o destaque
-      if (linkPage === currentPage) {
-        // Remove a classe de hover padrão para não dar conflito visual
-        link.classList.remove("hover:bg-indigo-700"); 
-        
-        // Adiciona as classes de "Ativo" (Fundo mais claro, negrito e borda amarela)
-        link.classList.add("bg-indigo-800", "font-bold", "border-l-4", "border-yellow-400");
-      }
-    });
-    
-    // Inicializa os ícones (caso ainda não tenha feito)
-    if (typeof feather !== 'undefined') feather.replace();
-  });
-</script>
-</body>
-
+        document.addEventListener("DOMContentLoaded", () => {
+            if(typeof feather !== 'undefined') feather.replace();
+            
+            // Menu Ativo
+            const currentPage = window.location.pathname.split("/").pop() || "dashboard.html";
+            document.querySelectorAll("nav a").forEach(link => {
+                if(link.getAttribute("href") === currentPage) {
+                    link.classList.remove("hover:bg-indigo-700");
+                    link.classList.add("bg-indigo-800", "font-bold", "border-l-4", "border-yellow-400");
+                }
+            });
+        });
+    </script>
+    <script src="js/alunos_crud_logic.js"></script>
+  </body>
 </html>
