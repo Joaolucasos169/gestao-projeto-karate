@@ -1,4 +1,6 @@
 const API_BASE = "https://gestao-karate-backend.onrender.com/api/v1";
+
+// ==================== UTILITÁRIOS ====================
 function getToken() { 
   return localStorage.getItem('token'); 
 }
@@ -6,64 +8,70 @@ function getToken() {
 function showFeedback(msg, type = 'success') {
   const el = document.getElementById('feedback-message');
   if (!el) return;
-
   el.textContent = msg;
   el.className = 'feedback-message p-4 rounded-md text-sm mb-4 ' +
     (type === 'success' ? 'bg-green-100 text-green-800 border border-green-300' : 'bg-red-100 text-red-800 border border-red-300');
-  
   el.style.display = 'block';
   setTimeout(() => el.style.display = 'none', 3500);
 }
 
 // Variáveis Globais
 let allAlunos = [];
-let selectedStudents = [];
+let selectedStudents = []; // Armazena apenas os IDs
 
-// ==================== CARREGAR ALUNOS ====================
+// ==================== CARREGAR DADOS ====================
 async function loadAlunos() {
   const tbody = document.getElementById('alunos-tbody');
   if (!tbody) return;
-  
-  tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-gray-500">Carregando alunos...</td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4">Carregando...</td></tr>`;
 
   try {
-    const res = await fetch(`${API_BASE}/alunos/`, { 
-      headers: { Authorization: `Bearer ${getToken()}` } 
-    });
-
+    const res = await fetch(`${API_BASE}/alunos/`, { headers: { Authorization: `Bearer ${getToken()}` } });
     if (!res.ok) throw new Error("Erro ao carregar alunos");
-
     allAlunos = await res.json();
     renderAlunos();
-
   } catch (e) {
     console.error(e);
-    tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-red-500">Erro ao carregar lista de alunos.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="4" class="text-center text-red-500">Erro ao carregar.</td></tr>`;
   }
 }
 
+async function loadExames() {
+  const tbody = document.getElementById('exames-tbody');
+  if(!tbody) return;
+  tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4">Carregando...</td></tr>`;
+
+  try {
+    const res = await fetch(`${API_BASE}/exames/`, { headers: { Authorization: `Bearer ${getToken()}` } });
+    const exames = await res.json();
+    renderExames(exames);
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="6" class="text-center text-red-500">Erro.</td></tr>`;
+  }
+}
+
+// ==================== RENDERIZAÇÃO ====================
 function renderAlunos() {
   const tbody = document.getElementById('alunos-tbody');
   tbody.innerHTML = "";
 
-  if (!allAlunos || allAlunos.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-gray-500">Nenhum aluno cadastrado.</td></tr>`;
+  if (!allAlunos.length) {
+    tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4">Sem alunos.</td></tr>`;
     return;
   }
 
   allAlunos.forEach(aluno => {
-    // Verifica se o aluno já está selecionado para manter o botão visualmente correto
     const isSelected = selectedStudents.includes(aluno.id);
+    // Botão muda de cor se selecionado
     const btnClass = isSelected ? "bg-green-600 hover:bg-green-700" : "bg-indigo-600 hover:bg-indigo-700";
     const btnText = isSelected ? "Selecionado" : "Adicionar";
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td class="px-6 py-4 whitespace-nowrap">${aluno.nome}</td>
-      <td class="px-6 py-4 whitespace-nowrap">${aluno.data_nascimento ? new Date(aluno.data_nascimento).toLocaleDateString('pt-BR') : "—"}</td>
-      <td class="px-6 py-4 whitespace-nowrap">${aluno.faixa || "—"}</td>
-      <td class="px-6 py-4 whitespace-nowrap">
-        <button id="btn-aluno-${aluno.id}" class="${btnClass} text-white px-3 py-1 rounded transition-colors" 
+      <td class="px-6 py-4">${aluno.nome}</td>
+      <td class="px-6 py-4">${aluno.faixa || "-"}</td>
+      <td class="px-6 py-4">
+        <button id="btn-aluno-${aluno.id}" class="${btnClass} text-white px-3 py-1 rounded transition" 
           onclick="toggleStudentSelection(${aluno.id})">
           ${btnText}
         </button>
@@ -71,184 +79,160 @@ function renderAlunos() {
     `;
     tbody.appendChild(tr);
   });
+  
+  // Atualiza contador no botão de visualizar (se existir)
+  const contadorEl = document.getElementById('contador-selecionados');
+  if(contadorEl) contadorEl.textContent = `(${selectedStudents.length})`;
 }
 
-// Função melhorada para selecionar/deselecionar
+function renderExames(exames) {
+    const tbody = document.getElementById('exames-tbody');
+    tbody.innerHTML = "";
+    exames.forEach(exame => {
+        const nomes = (exame.alunos || []).map(a => a.nome).join(", ");
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="px-6 py-4">${exame.nome_evento}</td>
+            <td class="px-6 py-4">${exame.data}</td>
+            <td class="px-6 py-4 truncate max-w-xs" title="${nomes}">${nomes}</td>
+            <td class="px-6 py-4">
+                <button onclick="excluirExame(${exame.id})" class="text-red-600 hover:underline">Excluir</button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// ==================== LÓGICA DE SELEÇÃO E MODAL ====================
+
+// 1. Selecionar/Deselecionar Aluno
 function toggleStudentSelection(id) {
-  const btn = document.getElementById(`btn-aluno-${id}`);
-  
   if (selectedStudents.includes(id)) {
-    // Remover
     selectedStudents = selectedStudents.filter(sId => sId !== id);
-    if (btn) {
-      btn.textContent = "Adicionar";
-      btn.className = "bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded transition-colors";
-    }
   } else {
-    // Adicionar
     selectedStudents.push(id);
-    if (btn) {
-      btn.textContent = "Selecionado";
-      btn.className = "bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded transition-colors";
-    }
+  }
+  renderAlunos(); // Re-renderiza para atualizar as cores dos botões
+}
+
+// 2. Abrir Modal de Visualização (CORREÇÃO DO SEU PROBLEMA)
+function abrirModalSelecionados() {
+  const modal = document.getElementById('modal-selecionados');
+  const lista = document.getElementById('lista-alunos-selecionados');
+  
+  if (!modal || !lista) {
+      console.error("Modal ou Lista não encontrados no HTML (Verifique os IDs)");
+      return;
+  }
+
+  // Filtra os objetos completos dos alunos baseados nos IDs selecionados
+  const alunosDetalhados = allAlunos.filter(aluno => selectedStudents.includes(aluno.id));
+
+  lista.innerHTML = "";
+  if (alunosDetalhados.length === 0) {
+    lista.innerHTML = "<li class='text-gray-500'>Nenhum aluno selecionado.</li>";
+  } else {
+    alunosDetalhados.forEach(aluno => {
+      const li = document.createElement('li');
+      li.className = "flex justify-between items-center bg-gray-50 p-2 mb-2 rounded border";
+      li.innerHTML = `
+        <span>${aluno.nome} (${aluno.faixa})</span>
+        <button onclick="toggleStudentSelection(${aluno.id}); abrirModalSelecionados();" class="text-red-500 hover:text-red-700 font-bold">✕</button>
+      `;
+      lista.appendChild(li);
+    });
+  }
+
+  modal.classList.remove('hidden');
+  modal.style.display = 'flex'; // Garante que apareça
+}
+
+// 3. Fechar Modal
+function fecharModalSelecionados() {
+  const modal = document.getElementById('modal-selecionados');
+  if (modal) {
+      modal.classList.add('hidden');
+      modal.style.display = 'none';
   }
 }
 
-// ==================== CRIAR EXAME ====================
-async function createExame() {
-  const nome = document.getElementById('exame_nome').value.trim();
+// ==================== AÇÕES DE CRUD ====================
+async function createExame(event) {
+  if (event) event.preventDefault(); // Evita recarregar a página se estiver num form
+
+  const nome = document.getElementById('exame_nome').value;
   const data = document.getElementById('exame_data').value;
   const hora = document.getElementById('exame_hora').value;
-  const local = document.getElementById('exame_local').value.trim();
+  const local = document.getElementById('exame_local').value;
 
   if (!nome || !data || !hora || !local) {
-    showFeedback("Preencha todos os campos obrigatórios!", "error");
+    showFeedback("Preencha todos os campos!", "error");
     return;
   }
-
   if (selectedStudents.length === 0) {
-    showFeedback("Selecione pelo menos um aluno para o exame!", "error");
+    showFeedback("Selecione alunos na tabela abaixo!", "error");
     return;
   }
 
   const payload = {
     nome_evento: nome,
-    data: data,
-    hora: hora,
-    local: local,
+    data, hora, local,
     alunos_ids: selectedStudents
   };
 
-  const btnSalvar = document.querySelector("button[onclick='createExame()']");
-  if(btnSalvar) btnSalvar.textContent = "Salvando...";
-
   try {
-    // CORREÇÃO: Adicionada a barra "/" no final da URL
     const res = await fetch(`${API_BASE}/exames/`, {
       method: "POST",
-      headers: { 
-        "Content-Type": "application/json", 
-        "Authorization": `Bearer ${getToken()}` 
-      },
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
       body: JSON.stringify(payload)
     });
 
-    const json = await res.json();
-    if (!res.ok) throw new Error(json.message || "Erro ao criar exame");
-
-    showFeedback("Exame criado com sucesso!");
-
-    // Resetar formulário
-    selectedStudents = [];
-    document.getElementById('exame_nome').value = "";
-    document.getElementById('exame_data').value = "";
-    document.getElementById('exame_hora').value = "";
-    document.getElementById('exame_local').value = "";
-    
-    // Recarregar listas
-    loadExames();
-    renderAlunos(); // Reseta os botões dos alunos
-    
-    // Se você tiver uma função para fechar o modal, chame-a aqui
-    // closeSelectedModal(); 
-
-  } catch (e) {
-    console.error(e);
-    showFeedback(e.message || "Erro ao conectar com o servidor", "error");
-  } finally {
-    if(btnSalvar) btnSalvar.textContent = "Salvar Exame";
-  }
-}
-
-// ==================== LISTAR EXAMES ====================
-async function loadExames() {
-  const tbody = document.getElementById('exames-tbody');
-  if(!tbody) return;
-
-  tbody.innerHTML = `<tr><td colspan="6" class="py-4 text-center text-gray-500">Carregando exames...</td></tr>`;
-
-  try {
-    // CORREÇÃO: Adicionada a barra "/" no final da URL
-    const res = await fetch(`${API_BASE}/exames/`, { 
-      headers: { Authorization: `Bearer ${getToken()}` } 
-    });
-
-    if (!res.ok) throw new Error("Erro ao buscar exames");
-
-    const exames = await res.json();
-    renderExames(exames);
-
-  } catch (e) {
-    console.error(e);
-    tbody.innerHTML = `<tr><td colspan="6" class="py-4 text-center text-red-500">Erro ao carregar exames.</td></tr>`;
-  }
-}
-
-function renderExames(exames) {
-  const tbody = document.getElementById('exames-tbody');
-  tbody.innerHTML = "";
-
-  if (!exames || exames.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" class="py-4 text-center text-gray-500">Nenhum exame cadastrado.</td></tr>`;
-    return;
-  }
-
-  exames.forEach(exame => {
-    // Formatar data para PT-BR
-    const dataFormatada = exame.data ? new Date(exame.data).toLocaleDateString('pt-BR', {timeZone: 'UTC'}) : '-';
-    
-    // Listar nomes dos alunos (trata caso venha nulo)
-    const listaAlunos = (exame.alunos || []).map(a => a.nome).join(", ");
-
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td class="px-6 py-4 whitespace-nowrap">${exame.nome_evento}</td>
-      <td class="px-6 py-4 whitespace-nowrap">${dataFormatada}</td>
-      <td class="px-6 py-4 whitespace-nowrap">${exame.hora}</td>
-      <td class="px-6 py-4 whitespace-nowrap">${exame.local}</td>
-      <td class="px-6 py-4 block min-w-[200px] truncate" title="${listaAlunos}">
-        ${listaAlunos.length > 30 ? listaAlunos.substring(0, 30) + '...' : listaAlunos}
-      </td>
-      <td class="px-6 py-4 whitespace-nowrap">
-        <button onclick="alert('Função de editar ainda não implementada para ID ${exame.id}')" class="text-blue-600 hover:text-blue-800 mr-3">✏️ Editar</button>
-        <button onclick="excluirExame(${exame.id})" class="text-red-600 hover:text-red-800">🗑 Excluir</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
-// ==================== EXCLUIR EXAME (Adicionado para completar) ====================
-async function excluirExame(id) {
-    if(!confirm("Tem certeza que deseja excluir este exame?")) return;
-
-    try {
-        const res = await fetch(`${API_BASE}/exames/${id}`, { // ID geralmente não precisa de barra no final, mas depende do backend. Normalmente é /exames/1
-            method: "DELETE",
-            headers: { Authorization: `Bearer ${getToken()}` }
-        });
-
-        if (res.ok) {
-            showFeedback("Exame excluído com sucesso!");
-            loadExames();
-        } else {
-            showFeedback("Erro ao excluir exame.", "error");
-        }
-    } catch (error) {
-        console.error(error);
-        showFeedback("Erro de conexão.", "error");
-    }
-}
-
-// ==================== INICIALIZAÇÃO ====================
-document.addEventListener("DOMContentLoaded", () => {
-  if(getToken()) {
-      loadAlunos();
+    if (res.ok) {
+      showFeedback("Exame criado!");
+      selectedStudents = [];
+      document.getElementById('exame-form').reset(); // Reseta inputs
+      fecharModalSelecionados();
       loadExames();
-  } else {
+      renderAlunos();
+    } else {
+      showFeedback("Erro ao criar.", "error");
+    }
+  } catch (e) {
+    console.error(e);
+    showFeedback("Erro de conexão.", "error");
   }
-  
-  if (typeof feather !== 'undefined') {
-    feather.replace();
+}
+
+async function excluirExame(id) {
+    if(!confirm("Excluir este exame?")) return;
+    try {
+        await fetch(`${API_BASE}/exames/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${getToken()}` } });
+        loadExames();
+    } catch (e) { console.error(e); }
+}
+
+// ==================== INICIALIZAÇÃO (LIGAÇÃO DOS BOTÕES) ====================
+document.addEventListener("DOMContentLoaded", () => {
+  loadAlunos();
+  loadExames();
+
+  // Liga o botão de "Visualizar Selecionados"
+  const btnVisualizar = document.getElementById("btn-visualizar-selecionados");
+  if (btnVisualizar) {
+      btnVisualizar.addEventListener("click", abrirModalSelecionados);
+  } else {
+      console.warn("Botão 'btn-visualizar-selecionados' não encontrado no HTML");
+  }
+
+  // Liga o botão de fechar modal
+  const btnFecharModal = document.getElementById("btn-fechar-modal");
+  if (btnFecharModal) {
+      btnFecharModal.addEventListener("click", fecharModalSelecionados);
+  }
+
+  // Liga o botão de salvar exame
+  const btnSalvar = document.getElementById("btn-salvar-exame");
+  if (btnSalvar) {
+      btnSalvar.addEventListener("click", createExame);
   }
 });
