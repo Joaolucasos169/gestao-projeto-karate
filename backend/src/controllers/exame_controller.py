@@ -8,7 +8,7 @@ from datetime import datetime
 exame_bp = Blueprint('exame_bp', __name__)
 
 # ==================== CRIAR EXAME (POST) ====================
-@exame_bp.route('/', methods=['POST'])
+@exame_bp.route('/', methods=['PUT'])
 @jwt_required()
 def create_exame():
     data = request.get_json() or {}

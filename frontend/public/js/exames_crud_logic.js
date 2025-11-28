@@ -124,7 +124,7 @@ async function createExame() {
 
   try {
     const res = await fetch(`${API_BASE}/exames/`, {
-      method: "POST",
+      method: "PUT",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
       body: JSON.stringify(payload)
     });
