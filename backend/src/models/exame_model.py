@@ -1,5 +1,4 @@
 from ..database import db
-from sqlalchemy.dialects.postgresql import ARRAY
 from datetime import datetime
 
 class ExameModel(db.Model):
@@ -7,29 +6,19 @@ class ExameModel(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     nome_evento = db.Column(db.String(200), nullable=False)
-    data = db.Column(db.String(20), nullable=False)   # armazenamos 'YYYY-MM-DD' string para simplicidade
-    hora = db.Column(db.String(10), nullable=False)   # 'HH:MM'
+    data = db.Column(db.String(20), nullable=False)
+    hora = db.Column(db.String(10), nullable=False)
     local = db.Column(db.String(200), nullable=False)
-    alunos_ids = db.Column(ARRAY(db.Integer), nullable=False, default=[])
+    
+    # REMOVIDO: alunos_ids = ... (Não pode ter isso!)
+    
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    def to_json(self, include_alunos=False):
-        base = {
+    def to_json(self):
+        return {
             'id': self.id,
             'nome_evento': self.nome_evento,
             'data': self.data,
             'hora': self.hora,
-            'local': self.local,
-            'alunos_ids': self.alunos_ids or [],
-            'created_at': self.created_at.isoformat()
+            'local': self.local
         }
-        if include_alunos:
-            # busca nomes dos alunos (opcional; chamador deve importar AlunoModel para isto)
-            from .aluno_model import AlunoModel
-            alunos = []
-            for aid in self.alunos_ids or []:
-                a = AlunoModel.query.get(aid)
-                if a:
-                    alunos.append({'id': a.id, 'nome': a.nome, 'faixa': getattr(a, 'faixa', None)})
-            base['alunos'] = alunos
-        return base
