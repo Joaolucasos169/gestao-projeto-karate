@@ -37,7 +37,7 @@ def create_app():
             "https://gestao-projeto-karate.vercel.app"
         ]}},
         supports_credentials=True,
-        methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
         allow_headers=["Content-Type", "Authorization"]
     )
     # -------------------------------------------------------
