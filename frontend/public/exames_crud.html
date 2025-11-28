@@ -9,10 +9,8 @@
       (function() {
         const token = localStorage.getItem('token');
         if (!token) {
-          // Se não tem token, chuta para o login imediatamente
           window.location.href = 'index.html';
         } else {
-          // Se tem token, aguarda o HTML carregar para mostrar a tela
           document.addEventListener("DOMContentLoaded", () => {
               document.body.style.display = "block";
           });
@@ -25,21 +23,20 @@
     <style>
       .feedback-message { display: none; margin-bottom: 1rem; transition: opacity .3s; }
       .hidden { display: none; }
-      /* Garante que o menu lateral fique acima do conteúdo no celular */
+      /* Sidebar acima do conteúdo no mobile */
       #sidebar { z-index: 40; }
-      /* Garante que o Modal da Banca fique acima de tudo */
+      /* Modal da Banca acima de tudo */
       #modal-banca { z-index: 60; } 
-      /* Modal de selecionados */
-      #modal-selecionados { z-index: 50; }
+      /* Input numérico sem setinhas */
+      input[type=number]::-webkit-inner-spin-button, 
+      input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
     </style>
   </head>
   
   <body class="bg-gray-100 font-sans" style="display: none;">
-    
     <div class="flex h-screen overflow-hidden">
       
       <aside id="sidebar" class="w-64 bg-indigo-900 text-white p-6 flex flex-col justify-between h-screen fixed inset-y-0 left-0 transform -translate-x-full md:translate-x-0 md:relative transition-transform duration-300">
-        
         <div>
           <h1 class="text-2xl font-bold mb-8 text-center border-b border-indigo-700 pb-4">Dojo Gestão</h1>
           <nav class="space-y-2">
@@ -132,9 +129,9 @@
               <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-100 sticky top-0">
                   <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Nome</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Faixa Atual</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Ação</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Faixa Atual</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ação</th>
                   </tr>
                 </thead>
                 <tbody id="alunos-tbody" class="bg-white divide-y divide-gray-200">
@@ -149,10 +146,10 @@
               <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-100">
                   <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Evento</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Data</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Inscritos</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500">Ações</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Evento</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data/Hora</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Inscritos</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                   </tr>
                 </thead>
                 <tbody id="exames-tbody" class="bg-white divide-y divide-gray-200">
@@ -168,7 +165,7 @@
       <div class="bg-white rounded-lg shadow-2xl w-full max-w-lg p-6 relative">
         <div class="flex justify-between items-center mb-4 border-b pb-2">
           <h3 class="text-lg font-bold text-gray-800">Alunos Selecionados</h3>
-          <button id="btn-fechar-modal" class="text-gray-400 hover:text-gray-600" onclick="document.getElementById('modal-selecionados').classList.add('hidden')"><i data-feather="x"></i></button>
+          <button class="text-gray-400 hover:text-gray-600" onclick="document.getElementById('modal-selecionados').classList.add('hidden')"><i data-feather="x"></i></button>
         </div>
         <ul id="lista-alunos-selecionados" class="max-h-60 overflow-y-auto mb-6 space-y-2 pr-2"></ul>
         <div class="flex justify-end pt-2">
@@ -177,41 +174,52 @@
       </div>
     </div>
 
-    <div id="modal-banca" class="hidden fixed inset-0 bg-black bg-opacity-90 flex flex-col items-center justify-center p-4">
-        <div class="bg-white w-full max-w-6xl h-full md:h-auto md:max-h-[90vh] rounded-lg shadow-2xl flex flex-col">
-            <div class="p-6 border-b flex justify-between items-center bg-indigo-900 text-white rounded-t-lg">
+    <div id="modal-banca" class="hidden fixed inset-0 bg-black bg-opacity-90 flex flex-col items-center justify-center p-2 md:p-6 z-50 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-7xl h-full md:h-[90vh] rounded-lg shadow-2xl flex flex-col overflow-hidden">
+            
+            <div class="p-4 md:p-6 border-b flex justify-between items-center bg-indigo-900 text-white">
                 <div>
-                    <h2 class="text-2xl font-bold">🥋 Banca Avaliadora</h2>
-                    <p class="text-indigo-200 text-sm">Digite as notas. A média e o status são automáticos.</p>
+                    <h2 class="text-xl md:text-2xl font-bold flex items-center gap-2"><i data-feather="award"></i> Banca Avaliadora</h2>
+                    <p class="text-indigo-200 text-xs md:text-sm">Lançamento de notas & Ranking em tempo real</p>
                 </div>
-                <button onclick="fecharBanca()" class="text-white hover:text-red-400"><i data-feather="x" class="w-8 h-8"></i></button>
+                <button onclick="fecharBanca()" class="text-white hover:text-red-400 bg-indigo-800 p-2 rounded-full hover:bg-indigo-700 transition"><i data-feather="x"></i></button>
             </div>
-            <div class="flex-1 overflow-auto p-4 bg-gray-50">
-                <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
-                    <thead class="bg-gray-200 text-gray-700 text-sm uppercase font-bold">
-                        <tr>
-                            <th class="py-3 px-4 text-left">Aluno</th>
-                            <th class="py-3 px-2 text-center w-20">Kihon</th>
-                            <th class="py-3 px-2 text-center w-20">Kata</th>
-                            <th class="py-3 px-2 text-center w-20">Kumite</th>
-                            <th class="py-3 px-2 text-center w-20">Gerais</th>
-                            <th class="py-3 px-4 text-center w-24">Média</th>
-                            <th class="py-3 px-4 text-center">Status</th>
-                            <th class="py-3 px-4 text-center">Salvar</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbody-banca" class="text-gray-600 text-sm">
-                        </tbody>
-                </table>
-            </div>
-            <div class="p-4 border-t bg-gray-100 text-right">
-                <button onclick="fecharBanca()" class="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600">Fechar Banca</button>
+
+            <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
+                
+                <div class="flex-1 overflow-auto p-4 bg-gray-50 border-r border-gray-200">
+                    <h3 class="font-bold text-gray-700 mb-3 text-lg border-b pb-2">📝 Notas dos Alunos</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white shadow-sm rounded-lg overflow-hidden border">
+                            <thead class="bg-gray-200 text-gray-700 text-xs uppercase font-bold">
+                                <tr>
+                                    <th class="py-3 px-3 text-left">Aluno</th>
+                                    <th class="py-3 px-1 text-center w-16">Kihon</th>
+                                    <th class="py-3 px-1 text-center w-16">Kata</th>
+                                    <th class="py-3 px-1 text-center w-16">Kumite</th>
+                                    <th class="py-3 px-1 text-center w-16">Gerais</th>
+                                    <th class="py-3 px-2 text-center w-20">Salvar</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-banca" class="text-gray-600 text-sm divide-y">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="h-1/3 md:h-auto md:w-1/3 bg-white p-4 overflow-y-auto border-t md:border-t-0 shadow-inner">
+                    <h3 class="font-bold text-indigo-800 mb-4 text-lg flex items-center justify-between border-b pb-2">
+                        <span>🏆 Ranking Final</span>
+                        <span class="text-xs font-normal text-gray-500" id="ranking-status">Atualizado</span>
+                    </h3>
+                    <ul id="lista-ranking" class="space-y-2">
+                        </ul>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-      // Toggle Menu Mobile
       function toggleSidebar() {
           const sidebar = document.getElementById('sidebar');
           const overlay = document.getElementById('sidebar-overlay');
@@ -219,7 +227,6 @@
           overlay.classList.toggle('hidden');
       }
 
-      // Função Logout (ACESSÍVEL GLOBALMENTE)
       function logout() {
         if(confirm("Deseja realmente sair?")) {
           localStorage.removeItem('token');
@@ -227,9 +234,7 @@
         }
       }
 
-      // Inicialização da Página
       document.addEventListener("DOMContentLoaded", () => {
-        // Lógica de Menu Ativo
         const currentPage = window.location.pathname.split("/").pop() || "dashboard.html";
         document.querySelectorAll("nav a").forEach(link => {
             if(link.getAttribute("href") === currentPage) {
@@ -237,12 +242,9 @@
                 link.classList.add("bg-indigo-800", "font-bold", "border-l-4", "border-yellow-400");
             }
         });
-        
-        // Ativa ícones
         if(typeof feather !== 'undefined') feather.replace();
       });
     </script>
-    
     <script src="js/exames_crud_logic.js"></script>
   </body>
 </html>
