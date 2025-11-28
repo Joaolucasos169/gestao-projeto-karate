@@ -11,6 +11,7 @@
         if (!token) {
           window.location.href = 'index.html';
         } else {
+          // Libera a tela apenas se tiver token
           document.addEventListener("DOMContentLoaded", () => {
               document.body.style.display = "block";
           });
@@ -24,10 +25,10 @@
       .feedback-message { display: none; margin-bottom: 1rem; transition: opacity .3s; }
       .hidden { display: none; }
       #sidebar { z-index: 40; }
-      /* Garante que o Modal da Banca fique acima de tudo */
       #modal-banca { z-index: 60; } 
     </style>
   </head>
+  
   <body class="bg-gray-100 font-sans" style="display: none;">
     <div class="flex h-screen overflow-hidden">
       
