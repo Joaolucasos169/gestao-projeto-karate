@@ -6,44 +6,57 @@ from flask_jwt_extended import jwt_required
 
 exame_bp = Blueprint('exame_bp', __name__)
 
-# ==================== CRIAR EXAME ====================
+# ==================== CRIAR EXAME (VERSÃO DEBUG) ====================
 @exame_bp.route('/', methods=['POST'])
 @jwt_required()
 def create_exame():
     data = request.get_json() or {}
-    
+
+    # 1. Validação de dados
     required = ['nome_evento', 'data', 'hora', 'local', 'alunos_ids']
     if not all(k in data for k in required):
-        return jsonify({'message': 'Dados incompletos.'}), 400
+        return jsonify({'message': 'Faltam dados obrigatórios.'}), 400
 
     if not data['alunos_ids']:
-        return jsonify({'message': 'Selecione pelo menos um aluno.'}), 400
+        return jsonify({'message': 'A lista de alunos está vazia.'}), 400
 
     try:
+        # 2. Cria o Exame
+        print("Tentando criar exame...") # Log no terminal
         novo_exame = ExameModel(
             nome_evento=data['nome_evento'],
-            data=data['data'], 
+            data=data['data'],
             hora=data['hora'],
             local=data['local']
         )
         
         db.session.add(novo_exame)
-        db.session.flush() 
+        db.session.flush() # Força a criação do ID do exame
+        print(f"Exame criado com ID: {novo_exame.id}")
 
+        # 3. Cria as Inscrições
+        count = 0
         for aluno_id in data['alunos_ids']:
+            print(f"Inscrevendo aluno ID: {aluno_id}")
             nova_inscricao = InscricaoModel(
                 fk_exame=novo_exame.id,
-                fk_aluno=aluno_id
+                fk_aluno=int(aluno_id), # Garante que é número
+                # Valores padrão
+                nota_kihon=0, nota_kata=0, nota_kumite=0, nota_gerais=0, 
+                media_final=0, aprovado=False
             )
             db.session.add(nova_inscricao)
+            count += 1
 
         db.session.commit()
-        return jsonify({'message': 'Exame criado com sucesso!'}), 201
+        return jsonify({'message': f'Sucesso! Exame criado com {count} alunos.'}), 201
 
     except Exception as e:
         db.session.rollback()
-        print(f"Erro criar exame: {e}")
-        return jsonify({'message': 'Erro interno.'}), 500
+        # AQUI ESTÁ O SEGREDO: Mandamos o erro real para o Frontend
+        error_msg = str(e)
+        print(f"ERRO FATAL: {error_msg}")
+        return jsonify({'message': f'ERRO TÉCNICO: {error_msg}'}), 500
 
 # ==================== LISTAR EXAMES ====================
 @exame_bp.route('/', methods=['GET'])
