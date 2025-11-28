@@ -87,8 +87,16 @@ function renderAlunos() {
 }
 
 function toggleStudent(id) {
-  if (selectedStudents.includes(id)) selectedStudents = selectedStudents.filter(sId => sId !== id);
-  else selectedStudents.push(id);
+  // Garante que o ID seja tratado como número
+  const alunoId = parseInt(id, 10);
+  
+  if (selectedStudents.includes(alunoId)) {
+    selectedStudents = selectedStudents.filter(sId => sId !== alunoId);
+  } else {
+    selectedStudents.push(alunoId);
+  }
+  
+  console.log("Alunos selecionados (IDs):", selectedStudents); // Debug no Console
   renderAlunos();
 }
 
@@ -99,70 +107,64 @@ function updateCounter() {
 
 // ==================== CRIAR EXAME ====================
 async function createExame() {
-  console.log("Botão Criar Exame clicado!"); // 1. Teste de clique
-
   const nome = document.getElementById('exame_nome').value;
   const data = document.getElementById('exame_data').value;
   const hora = document.getElementById('exame_hora').value;
   const local = document.getElementById('exame_local').value;
 
-  // Validação
   if (!nome || !data || !hora || !local) {
-      alert("Preencha todos os campos do formulário!");
-      return;
-  }
-  
-  if (selectedStudents.length === 0) {
-      alert("Você precisa selecionar pelo menos um aluno na tabela abaixo!");
+      alert("Preencha todos os campos!");
       return;
   }
 
-  // Prepara dados
+  // Verifica se o array tem itens
+  if (selectedStudents.length === 0) {
+      alert("Selecione pelo menos um aluno!");
+      return;
+  }
+
   const payload = { 
       nome_evento: nome, 
       data: data, 
       hora: hora, 
       local: local, 
-      alunos_ids: selectedStudents 
+      alunos_ids: selectedStudents // Já garantimos que são números inteiros
   };
 
-  console.log("Enviando dados:", payload); // 2. Ver o que está sendo enviado
+  console.log("Enviando Payload:", payload);
 
-  // Muda texto do botão para feedback visual
   const btn = document.getElementById("btn-salvar-exame");
-  const textoOriginal = btn.innerHTML;
   btn.innerHTML = "Criando...";
   btn.disabled = true;
 
   try {
     const res = await fetch(`${API_BASE}/exames/`, {
-      method: "POST", // <--- OBRIGATÓRIO SER POST
-      headers: { 
-          "Content-Type": "application/json", 
-          "Authorization": `Bearer ${getToken()}` 
-      },
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${getToken()}` },
       body: JSON.stringify(payload)
     });
 
     const json = await res.json();
-    console.log("Resposta do servidor:", json); // 3. Ver resposta
 
     if (res.ok) {
-      showFeedback("Exame criado com sucesso!");
-      // Resetar tudo
+      // Sucesso
+      alert("Exame criado com sucesso!");
       selectedStudents = [];
       document.getElementById('form-exame').reset();
-      renderAlunos(); // Limpa seleções visuais
-      loadExames();   // Recarrega a tabela de exames
+      renderAlunos();
+      loadExames();
     } else {
-      alert(`Erro ao criar: ${json.message}`);
+      // Erro do Backend
+      alert(`Erro no servidor: ${json.message}`);
+      console.error("Erro detalhado:", json);
     }
   } catch (e) {
+    alert("Erro de conexão (Verifique se o backend está rodando).");
     console.error(e);
-    alert("Erro de conexão com o servidor.");
   } finally {
-    btn.innerHTML = textoOriginal;
+    btn.innerHTML = `<i data-feather="check"></i> Criar Exame`;
     btn.disabled = false;
+    feather.replace();
   }
 }
 
