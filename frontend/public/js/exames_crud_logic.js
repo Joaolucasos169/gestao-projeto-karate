@@ -99,34 +99,70 @@ function updateCounter() {
 
 // ==================== CRIAR EXAME ====================
 async function createExame() {
+  console.log("Botão Criar Exame clicado!"); // 1. Teste de clique
+
   const nome = document.getElementById('exame_nome').value;
   const data = document.getElementById('exame_data').value;
   const hora = document.getElementById('exame_hora').value;
   const local = document.getElementById('exame_local').value;
 
-  if (!nome || !data || !hora || !local) return showFeedback("Preencha todos os campos!", "error");
-  if (selectedStudents.length === 0) return showFeedback("Selecione alunos!", "error");
+  // Validação
+  if (!nome || !data || !hora || !local) {
+      alert("Preencha todos os campos do formulário!");
+      return;
+  }
+  
+  if (selectedStudents.length === 0) {
+      alert("Você precisa selecionar pelo menos um aluno na tabela abaixo!");
+      return;
+  }
 
-  const payload = { nome_evento: nome, data, hora, local, alunos_ids: selectedStudents };
+  // Prepara dados
+  const payload = { 
+      nome_evento: nome, 
+      data: data, 
+      hora: hora, 
+      local: local, 
+      alunos_ids: selectedStudents 
+  };
+
+  console.log("Enviando dados:", payload); // 2. Ver o que está sendo enviado
+
+  // Muda texto do botão para feedback visual
+  const btn = document.getElementById("btn-salvar-exame");
+  const textoOriginal = btn.innerHTML;
+  btn.innerHTML = "Criando...";
+  btn.disabled = true;
 
   try {
     const res = await fetch(`${API_BASE}/exames/`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+      method: "POST", // <--- OBRIGATÓRIO SER POST
+      headers: { 
+          "Content-Type": "application/json", 
+          "Authorization": `Bearer ${getToken()}` 
+      },
       body: JSON.stringify(payload)
     });
 
+    const json = await res.json();
+    console.log("Resposta do servidor:", json); // 3. Ver resposta
+
     if (res.ok) {
-      showFeedback("Exame criado!");
+      showFeedback("Exame criado com sucesso!");
+      // Resetar tudo
       selectedStudents = [];
       document.getElementById('form-exame').reset();
-      renderAlunos();
-      loadExames();
+      renderAlunos(); // Limpa seleções visuais
+      loadExames();   // Recarrega a tabela de exames
     } else {
-      showFeedback("Erro ao criar.", "error");
+      alert(`Erro ao criar: ${json.message}`);
     }
-  } catch {
-    showFeedback("Erro de conexão.", "error");
+  } catch (e) {
+    console.error(e);
+    alert("Erro de conexão com o servidor.");
+  } finally {
+    btn.innerHTML = textoOriginal;
+    btn.disabled = false;
   }
 }
 
