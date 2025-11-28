@@ -229,7 +229,7 @@ async function salvarNota(inscricaoId) {
 
     try {
         const res = await fetch(`${API_BASE}/exames/notas/${inscricaoId}`, {
-            method: 'PATCH',
+            method: 'POST',
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
             body: JSON.stringify(payload)
         });
