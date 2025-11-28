@@ -220,24 +220,66 @@ function calcMedia(id) {
 }
 
 async function salvarNota(inscricaoId) {
+    // Pega os valores. Se estiver vazio ou nulo, assume "0"
+    const k = document.getElementById(`k-${inscricaoId}`).value || 0;
+    const ka = document.getElementById(`ka-${inscricaoId}`).value || 0;
+    const ku = document.getElementById(`ku-${inscricaoId}`).value || 0;
+    const g = document.getElementById(`g-${inscricaoId}`).value || 0;
+
     const payload = {
-        kihon: document.getElementById(`k-${inscricaoId}`).value,
-        kata: document.getElementById(`ka-${inscricaoId}`).value,
-        kumite: document.getElementById(`ku-${inscricaoId}`).value,
-        gerais: document.getElementById(`g-${inscricaoId}`).value
+        kihon: k,
+        kata: ka,
+        kumite: ku,
+        gerais: g
     };
+
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.textContent = "Salvando...";
+    btn.disabled = true;
 
     try {
         const res = await fetch(`${API_BASE}/exames/notas/${inscricaoId}`, {
-            method: 'POST',
-            headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+            method: 'PUT', 
+            headers: { 
+                "Content-Type": "application/json", 
+                "Authorization": `Bearer ${getToken()}` 
+            },
             body: JSON.stringify(payload)
         });
 
-        if(res.ok) alert("Nota salva com sucesso!");
-        else alert("Erro ao salvar.");
+        const result = await res.json();
+
+        if(res.ok) {
+            // Atualiza visualmente a média e o status na linha
+            const elMedia = document.getElementById(`m-${inscricaoId}`);
+            const elStatus = document.getElementById(`s-${inscricaoId}`);
+            
+            // Atualiza o texto da média
+            elMedia.textContent = result.media;
+            
+            // Atualiza a cor e o badge de aprovado/reprovado
+            if (result.media >= 6.0) {
+                elMedia.className = "py-3 px-4 text-center font-bold text-lg text-green-600";
+                // Atualiza o badge na coluna Status (assumindo que o ID é s-{id})
+                elStatus.innerHTML = `<span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-bold">APROVADO</span>`;
+            } else {
+                elMedia.className = "py-3 px-4 text-center font-bold text-lg text-red-600";
+                elStatus.innerHTML = `<span class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-bold">REPROVADO</span>`;
+            }
+
+            showFeedback("Nota salva com sucesso!", "success");
+        } else {
+            console.error(result);
+            showFeedback(result.message || "Erro interno ao salvar.", "error");
+        }
     } catch(e) {
-        alert("Erro de conexão.");
+        console.error(e);
+        showFeedback("Erro de conexão.", "error");
+    } finally {
+        btn.innerHTML = originalText; // Restaura o botão (ícone de salvar)
+        btn.disabled = false;
+        if (typeof feather !== 'undefined') feather.replace();
     }
 }
 
