@@ -91,7 +91,7 @@ def get_banca_exame(exame_id):
         return jsonify({'message': 'Erro ao carregar banca'}), 500
 
 # ==================== LANÇAR NOTAS (PATCH) ====================
-@exame_bp.route('/notas/<int:inscricao_id>', methods=['PATCH'])
+@exame_bp.route('/notas/<int:inscricao_id>', methods=['POST'])
 @jwt_required()
 def update_notas(inscricao_id):
     data = request.get_json()
