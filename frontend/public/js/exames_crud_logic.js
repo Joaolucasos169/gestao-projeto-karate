@@ -14,13 +14,13 @@ function showFeedback(msg, type = 'success') {
 
 let allAlunos = [];
 let selectedStudents = [];
-let dadosBancaAtual = []; // Guarda estado para o ranking
+let dadosBancaAtual = [];
 
 // ==================== LOADERS ====================
 async function loadAlunos() {
     const tbody = document.getElementById('alunos-tbody');
     if(!tbody) return;
-    tbody.innerHTML = `<tr><td colspan="3" class="text-center py-4">Carregando alunos...</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="3" class="text-center py-4 text-gray-500">Carregando alunos...</td></tr>`;
     try {
         const res = await fetch(`${API_BASE}/alunos/`, { headers: { Authorization: `Bearer ${getToken()}` } });
         if (!res.ok) throw new Error();
@@ -34,7 +34,7 @@ async function loadAlunos() {
 async function loadExames() {
     const tbody = document.getElementById('exames-tbody');
     if(!tbody) return;
-    tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4">Carregando exames...</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-gray-500">Carregando exames...</td></tr>`;
     try {
         const res = await fetch(`${API_BASE}/exames/`, { headers: { Authorization: `Bearer ${getToken()}` } });
         const exames = await res.json();
@@ -51,13 +51,13 @@ async function loadExames() {
                 <tr class="hover:bg-gray-50 border-b">
                     <td class="px-6 py-4 font-medium">${ex.nome_evento}</td>
                     <td class="px-6 py-4 text-gray-600">${dataF} - ${ex.hora}</td>
-                    <td class="px-6 py-4 text-gray-600"><span class="bg-gray-100 px-2 py-1 rounded text-xs font-bold">${ex.qtd_alunos} alunos</span></td>
+                    <td class="px-6 py-4 text-gray-600"><span class="bg-gray-100 px-2 py-1 rounded text-xs font-bold">${ex.qtd_alunos} inscritos</span></td>
                     <td class="px-6 py-4 flex gap-2">
                         <button onclick="abrirBanca(${ex.id})" class="bg-indigo-600 text-white px-3 py-1.5 rounded text-sm hover:bg-indigo-700 flex items-center gap-1 shadow-sm transition">
                            <i data-feather="award" class="w-4 h-4"></i> Banca
                         </button>
-                        <button onclick="excluirExame(${ex.id})" class="text-red-600 hover:text-red-800 text-sm flex items-center gap-1 px-2">
-                           <i data-feather="trash-2" class="w-4 h-4"></i>
+                        <button onclick="window.excluirExame(${ex.id})" class="text-red-600 hover:text-red-800 text-sm flex items-center gap-1 px-2 border border-red-200 rounded hover:bg-red-50 transition">
+                           <i data-feather="trash-2" class="w-4 h-4"></i> Excluir
                         </button>
                     </td>
                 </tr>`;
@@ -90,13 +90,35 @@ function renderAlunos() {
     if(el) el.textContent = `(${selectedStudents.length})`;
 }
 
-function toggleStudent(id) {
-    // Garante Inteiro
-    const alunoId = parseInt(id, 10);
-    if (selectedStudents.includes(alunoId)) selectedStudents = selectedStudents.filter(s => s !== alunoId);
-    else selectedStudents.push(alunoId);
+function toggleStudent(idStr) {
+    const id = parseInt(idStr, 10);
+    if (selectedStudents.includes(id)) selectedStudents = selectedStudents.filter(s => s !== id);
+    else selectedStudents.push(id);
     renderAlunos();
 }
+
+// ==================== EXCLUIR EXAME (GLOBAL) ====================
+// Adicionei ao window para garantir visibilidade global
+window.excluirExame = async function(id) {
+    if(!confirm("Tem certeza que deseja excluir este exame? Todos os registros de notas serão apagados permanentemente.")) return;
+    
+    try {
+        const res = await fetch(`${API_BASE}/exames/${id}`, { 
+            method: 'DELETE', 
+            headers: { Authorization: `Bearer ${getToken()}` } 
+        });
+        
+        if(res.ok) {
+            showFeedback("Exame excluído com sucesso.");
+            loadExames(); // Recarrega a lista
+        } else {
+            const json = await res.json();
+            alert("Erro ao excluir: " + (json.message || "Erro desconhecido"));
+        }
+    } catch {
+        alert("Erro de conexão ao tentar excluir.");
+    }
+};
 
 // ==================== CRIAR EXAME ====================
 async function createExame() {
@@ -133,7 +155,7 @@ async function createExame() {
     finally { btn.innerHTML = txt; btn.disabled = false; }
 }
 
-// ==================== BANCA & RANKING ====================
+// ==================== BANCA AVALIADORA ====================
 async function abrirBanca(exameId) {
     document.getElementById('modal-banca').classList.remove('hidden');
     const tbody = document.getElementById('tbody-banca');
@@ -143,10 +165,8 @@ async function abrirBanca(exameId) {
     try {
         const res = await fetch(`${API_BASE}/exames/${exameId}/banca`, { headers: { Authorization: `Bearer ${getToken()}` } });
         dadosBancaAtual = await res.json();
-
         renderizarTabelaNotas();
         renderizarRanking();
-        
     } catch {
         tbody.innerHTML = '<tr><td colspan="6" class="text-center text-red-500">Erro ao carregar banca.</td></tr>';
     }
@@ -185,8 +205,6 @@ function renderizarTabelaNotas() {
 function renderizarRanking() {
     const lista = document.getElementById('lista-ranking');
     lista.innerHTML = "";
-
-    // Ordena: Maior média primeiro
     const classificados = [...dadosBancaAtual].sort((a, b) => b.media - a.media);
 
     classificados.forEach((item, index) => {
@@ -232,14 +250,13 @@ async function salvarNota(btn, inscricaoId) {
         const result = await res.json();
         
         if(res.ok) {
-            // Atualiza array local para refletir no ranking sem recarregar tudo
             const idx = dadosBancaAtual.findIndex(i => i.id === inscricaoId);
             if(idx !== -1) {
                 dadosBancaAtual[idx].notas = { kihon: k, kata: ka, kumite: ku, gerais: g };
                 dadosBancaAtual[idx].media = result.media;
                 dadosBancaAtual[idx].aprovado = result.aprovado;
             }
-            renderizarRanking(); // Atualiza lado direito
+            renderizarRanking();
             showFeedback("Nota Salva!", "success");
         } else {
             alert("Erro: " + result.message);
