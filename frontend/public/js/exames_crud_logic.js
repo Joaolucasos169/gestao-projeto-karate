@@ -274,6 +274,60 @@ function fecharBanca() {
     document.getElementById('modal-banca').classList.add('hidden');
 }
 
+// ==================== NOVAS FUNÇÕES (MAXIMIZAR E FILTRO) ====================
+
+// 1. Função de Maximizar Tela
+let isMaximized = false;
+function toggleMaximizar() {
+    const modalContainer = document.getElementById('banca-container');
+    const modalWrapper = document.getElementById('modal-banca'); // O fundo preto
+    const btnIcon = document.getElementById('btn-maximize').querySelector('i'); // O ícone
+
+    if (!isMaximized) {
+        // Entrar em Tela Cheia
+        modalWrapper.classList.remove('p-2', 'md:p-6'); // Remove padding do fundo
+        modalWrapper.classList.add('p-0'); // Cola nas bordas
+        
+        modalContainer.classList.remove('max-w-7xl', 'md:h-[90vh]', 'rounded-lg'); // Remove limites
+        modalContainer.classList.add('w-screen', 'h-screen', 'rounded-none'); // Força 100%
+        
+        // Troca ícone para "Minimizar"
+        btnIcon.setAttribute('data-feather', 'minimize');
+        isMaximized = true;
+    } else {
+        // Voltar ao Normal
+        modalWrapper.classList.add('p-2', 'md:p-6');
+        modalWrapper.classList.remove('p-0');
+        
+        modalContainer.classList.add('max-w-7xl', 'md:h-[90vh]', 'rounded-lg');
+        modalContainer.classList.remove('w-screen', 'h-screen', 'rounded-none');
+        
+        // Troca ícone para "Maximizar"
+        btnIcon.setAttribute('data-feather', 'maximize');
+        isMaximized = false;
+    }
+    feather.replace(); // Atualiza o ícone
+}
+
+// 2. Função de Aplicar Filtro
+function aplicarFiltroBanca() {
+    const filtro = document.getElementById('filtro-banca').value;
+
+    if (filtro === 'nome') {
+        dadosBancaAtual.sort((a, b) => a.aluno_nome.localeCompare(b.aluno_nome));
+    } else if (filtro === 'faixa') {
+        // Ordena por faixa (alfabética simples, ou você pode criar uma ordem de hierarquia se quiser)
+        dadosBancaAtual.sort((a, b) => (a.aluno_faixa || '').localeCompare(b.aluno_faixa || ''));
+    } else if (filtro === 'media_desc') {
+        dadosBancaAtual.sort((a, b) => b.media - a.media); // Maior nota primeiro
+    } else if (filtro === 'media_asc') {
+        dadosBancaAtual.sort((a, b) => a.media - b.media); // Menor nota primeiro
+    }
+
+    // Redesenha a tabela com a nova ordem
+    renderizarTabelaNotas();
+}
+
 // INICIALIZAÇÃO
 document.addEventListener("DOMContentLoaded", () => {
     if(getToken()) { loadAlunos(); loadExames(); }
