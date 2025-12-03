@@ -309,18 +309,43 @@ function toggleMaximizar() {
     feather.replace(); // Atualiza o ícone
 }
 
-// 2. Função de Aplicar Filtro
+// 2. Função de Aplicar Filtro (ATUALIZADA COM A ORDEM CORRETA)
 function aplicarFiltroBanca() {
     const filtro = document.getElementById('filtro-banca').value;
 
     if (filtro === 'nome') {
+        // Ordem Alfabética de Nomes
         dadosBancaAtual.sort((a, b) => a.aluno_nome.localeCompare(b.aluno_nome));
-    } else if (filtro === 'faixa') {
-        // Ordena por faixa (alfabética simples, ou você pode criar uma ordem de hierarquia se quiser)
-        dadosBancaAtual.sort((a, b) => (a.aluno_faixa || '').localeCompare(b.aluno_faixa || ''));
-    } else if (filtro === 'media_desc') {
+    } 
+    else if (filtro === 'faixa') {
+        // MAPA DE HIERARQUIA (Menor número aparece primeiro)
+        const hierarquia = {
+            "branca": 1,
+            "amarela": 2,
+            "vermelha": 3,
+            "laranja": 4,
+            "verde": 5,
+            "roxa": 6,
+            "marrom": 7,
+            "preta": 8
+        };
+
+        dadosBancaAtual.sort((a, b) => {
+            // Normaliza para minúsculo para garantir que bata com o mapa
+            const faixaA = (a.aluno_faixa || "").toLowerCase().trim();
+            const faixaB = (b.aluno_faixa || "").toLowerCase().trim();
+
+            // Pega o valor numérico. Se não achar a faixa (ex: erro de digitação), joga pro final (99)
+            const pesoA = hierarquia[faixaA] || 99;
+            const pesoB = hierarquia[faixaB] || 99;
+
+            return pesoA - pesoB; // Ordena do menor (1 - Branca) para o maior (8 - Preta)
+        });
+    } 
+    else if (filtro === 'media_desc') {
         dadosBancaAtual.sort((a, b) => b.media - a.media); // Maior nota primeiro
-    } else if (filtro === 'media_asc') {
+    } 
+    else if (filtro === 'media_asc') {
         dadosBancaAtual.sort((a, b) => a.media - b.media); // Menor nota primeiro
     }
 
