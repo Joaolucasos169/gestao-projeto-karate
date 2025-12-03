@@ -16,7 +16,7 @@ let allAlunos = [];
 let selectedStudents = [];
 let dadosBancaAtual = [];
 
-// ==================== LOADERS ====================
+// ==================== 1. LOADERS ====================
 async function loadAlunos() {
     const tbody = document.getElementById('alunos-tbody');
     if(!tbody) return;
@@ -48,11 +48,16 @@ async function loadExames() {
         exames.forEach(ex => {
             const dataF = new Date(ex.data).toLocaleDateString('pt-BR', {timeZone: 'UTC'});
             tbody.innerHTML += `
-                <tr class="hover:bg-gray-50 border-b">
+                <tr class="hover:bg-gray-50 border-b transition">
                     <td class="px-6 py-4 font-medium">${ex.nome_evento}</td>
                     <td class="px-6 py-4 text-gray-600">${dataF} - ${ex.hora}</td>
                     <td class="px-6 py-4 text-gray-600"><span class="bg-gray-100 px-2 py-1 rounded text-xs font-bold">${ex.qtd_alunos} inscritos</span></td>
                     <td class="px-6 py-4 flex gap-2">
+                        <button onclick="abrirEdicaoExame(${ex.id}, '${ex.nome_evento}', '${ex.data}', '${ex.hora}', '${ex.local}')" 
+                                class="bg-blue-100 text-blue-700 px-3 py-1.5 rounded text-sm hover:bg-blue-200 flex items-center gap-1 transition">
+                           <i data-feather="edit-2" class="w-4 h-4"></i> Editar
+                        </button>
+
                         <button onclick="abrirBanca(${ex.id})" class="bg-indigo-600 text-white px-3 py-1.5 rounded text-sm hover:bg-indigo-700 flex items-center gap-1 shadow-sm transition">
                            <i data-feather="award" class="w-4 h-4"></i> Banca
                         </button>
@@ -68,7 +73,7 @@ async function loadExames() {
     }
 }
 
-// ==================== SELEÇÃO DE ALUNOS ====================
+// ==================== 2. SELEÇÃO DE ALUNOS ====================
 function renderAlunos() {
     const tbody = document.getElementById('alunos-tbody');
     tbody.innerHTML = "";
@@ -97,30 +102,16 @@ function toggleStudent(idStr) {
     renderAlunos();
 }
 
-// ==================== EXCLUIR EXAME (GLOBAL) ====================
-// Adicionei ao window para garantir visibilidade global
+// ==================== 3. CRIAR E EXCLUIR ====================
 window.excluirExame = async function(id) {
     if(!confirm("Tem certeza que deseja excluir este exame? Todos os registros de notas serão apagados permanentemente.")) return;
-    
     try {
-        const res = await fetch(`${API_BASE}/exames/${id}`, { 
-            method: 'DELETE', 
-            headers: { Authorization: `Bearer ${getToken()}` } 
-        });
-        
-        if(res.ok) {
-            showFeedback("Exame excluído com sucesso.");
-            loadExames(); // Recarrega a lista
-        } else {
-            const json = await res.json();
-            alert("Erro ao excluir: " + (json.message || "Erro desconhecido"));
-        }
-    } catch {
-        alert("Erro de conexão ao tentar excluir.");
-    }
+        const res = await fetch(`${API_BASE}/exames/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${getToken()}` } });
+        if(res.ok) { showFeedback("Exame excluído com sucesso."); loadExames(); }
+        else { const json = await res.json(); alert("Erro ao excluir: " + (json.message || "Erro desconhecido")); }
+    } catch { alert("Erro de conexão ao tentar excluir."); }
 };
 
-// ==================== CRIAR EXAME ====================
 async function createExame() {
     const nome = document.getElementById('exame_nome').value;
     const data = document.getElementById('exame_data').value;
@@ -155,7 +146,46 @@ async function createExame() {
     finally { btn.innerHTML = txt; btn.disabled = false; }
 }
 
-// ==================== BANCA AVALIADORA ====================
+// ==================== 4. EDITAR EXAME (NOVO) ====================
+function abrirEdicaoExame(id, nome, data, hora, local) {
+    document.getElementById('edit-exame-id').value = id;
+    document.getElementById('edit-exame-nome').value = nome;
+    document.getElementById('edit-exame-data').value = data;
+    document.getElementById('edit-exame-hora').value = hora;
+    document.getElementById('edit-exame-local').value = local || "";
+    
+    document.getElementById('edit-exame-modal').classList.remove('hidden');
+}
+
+async function salvarEdicaoExame() {
+    const id = document.getElementById('edit-exame-id').value;
+    const payload = {
+        nome_evento: document.getElementById('edit-exame-nome').value,
+        data: document.getElementById('edit-exame-data').value,
+        hora: document.getElementById('edit-exame-hora').value,
+        local: document.getElementById('edit-exame-local').value
+    };
+
+    try {
+        const res = await fetch(`${API_BASE}/exames/${id}`, {
+            method: 'PUT',
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${getToken()}` },
+            body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+            showFeedback("Exame atualizado com sucesso!");
+            document.getElementById('edit-exame-modal').classList.add('hidden');
+            loadExames();
+        } else {
+            alert("Erro ao atualizar exame.");
+        }
+    } catch {
+        alert("Erro de conexão.");
+    }
+}
+
+// ==================== 5. BANCA AVALIADORA ====================
 async function abrirBanca(exameId) {
     document.getElementById('modal-banca').classList.remove('hidden');
     const tbody = document.getElementById('tbody-banca');
@@ -270,87 +300,31 @@ async function salvarNota(btn, inscricaoId) {
     }
 }
 
-function fecharBanca() {
-    document.getElementById('modal-banca').classList.add('hidden');
-}
-
-// ==================== NOVAS FUNÇÕES (MAXIMIZAR E FILTRO) ====================
-
-// 1. Função de Maximizar Tela
+// MAXIMIZAR
 let isMaximized = false;
 function toggleMaximizar() {
-    const modalContainer = document.getElementById('banca-container');
-    const modalWrapper = document.getElementById('modal-banca'); // O fundo preto
-    const btnIcon = document.getElementById('btn-maximize').querySelector('i'); // O ícone
+    const container = document.getElementById('banca-container');
+    const wrapper = document.getElementById('modal-banca');
+    const icon = document.getElementById('btn-maximize').querySelector('i');
 
     if (!isMaximized) {
-        // Entrar em Tela Cheia
-        modalWrapper.classList.remove('p-2', 'md:p-6'); // Remove padding do fundo
-        modalWrapper.classList.add('p-0'); // Cola nas bordas
-        
-        modalContainer.classList.remove('max-w-7xl', 'md:h-[90vh]', 'rounded-lg'); // Remove limites
-        modalContainer.classList.add('w-screen', 'h-screen', 'rounded-none'); // Força 100%
-        
-        // Troca ícone para "Minimizar"
-        btnIcon.setAttribute('data-feather', 'minimize');
+        wrapper.classList.remove('p-2', 'md:p-6'); wrapper.classList.add('p-0');
+        container.classList.remove('max-w-7xl', 'md:h-[90vh]', 'rounded-lg');
+        container.classList.add('w-screen', 'h-screen', 'rounded-none');
+        icon.setAttribute('data-feather', 'minimize');
         isMaximized = true;
     } else {
-        // Voltar ao Normal
-        modalWrapper.classList.add('p-2', 'md:p-6');
-        modalWrapper.classList.remove('p-0');
-        
-        modalContainer.classList.add('max-w-7xl', 'md:h-[90vh]', 'rounded-lg');
-        modalContainer.classList.remove('w-screen', 'h-screen', 'rounded-none');
-        
-        // Troca ícone para "Maximizar"
-        btnIcon.setAttribute('data-feather', 'maximize');
+        wrapper.classList.add('p-2', 'md:p-6'); wrapper.classList.remove('p-0');
+        container.classList.add('max-w-7xl', 'md:h-[90vh]', 'rounded-lg');
+        container.classList.remove('w-screen', 'h-screen', 'rounded-none');
+        icon.setAttribute('data-feather', 'maximize');
         isMaximized = false;
     }
-    feather.replace(); // Atualiza o ícone
+    feather.replace();
 }
 
-// 2. Função de Aplicar Filtro (ATUALIZADA COM A ORDEM CORRETA)
-function aplicarFiltroBanca() {
-    const filtro = document.getElementById('filtro-banca').value;
-
-    if (filtro === 'nome') {
-        // Ordem Alfabética de Nomes
-        dadosBancaAtual.sort((a, b) => a.aluno_nome.localeCompare(b.aluno_nome));
-    } 
-    else if (filtro === 'faixa') {
-        // MAPA DE HIERARQUIA (Menor número aparece primeiro)
-        const hierarquia = {
-            "branca": 1,
-            "amarela": 2,
-            "vermelha": 3,
-            "laranja": 4,
-            "verde": 5,
-            "roxa": 6,
-            "marrom": 7,
-            "preta": 8
-        };
-
-        dadosBancaAtual.sort((a, b) => {
-            // Normaliza para minúsculo para garantir que bata com o mapa
-            const faixaA = (a.aluno_faixa || "").toLowerCase().trim();
-            const faixaB = (b.aluno_faixa || "").toLowerCase().trim();
-
-            // Pega o valor numérico. Se não achar a faixa (ex: erro de digitação), joga pro final (99)
-            const pesoA = hierarquia[faixaA] || 99;
-            const pesoB = hierarquia[faixaB] || 99;
-
-            return pesoA - pesoB; // Ordena do menor (1 - Branca) para o maior (8 - Preta)
-        });
-    } 
-    else if (filtro === 'media_desc') {
-        dadosBancaAtual.sort((a, b) => b.media - a.media); // Maior nota primeiro
-    } 
-    else if (filtro === 'media_asc') {
-        dadosBancaAtual.sort((a, b) => a.media - b.media); // Menor nota primeiro
-    }
-
-    // Redesenha a tabela com a nova ordem
-    renderizarTabelaNotas();
+function fecharBanca() {
+    document.getElementById('modal-banca').classList.add('hidden');
 }
 
 // INICIALIZAÇÃO

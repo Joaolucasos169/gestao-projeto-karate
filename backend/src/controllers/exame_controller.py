@@ -124,7 +124,28 @@ def update_notas(inscricao_id):
         db.session.rollback()
         print(f"Erro notas: {e}")
         return jsonify({'message': f'Erro ao salvar: {e}'}), 500
+# ==================== ATUALIZAR EXAME (PUT) ====================
+@exame_bp.route('/<int:id>', methods=['PUT'])
+@jwt_required()
+def update_exame(id):
+    exame = ExameModel.query.get(id)
+    if not exame:
+        return jsonify({'message': 'Exame não encontrado'}), 404
 
+    data = request.get_json()
+    
+    try:
+        if 'nome_evento' in data: exame.nome_evento = data['nome_evento']
+        if 'data' in data: exame.data = data['data']
+        if 'hora' in data: exame.hora = data['hora']
+        if 'local' in data: exame.local = data['local']
+        
+        db.session.commit()
+        return jsonify({'message': 'Exame atualizado com sucesso!'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'message': f'Erro ao atualizar: {e}'}), 500
+    
 # ==================== DELETAR EXAME ====================
 @exame_bp.route('/<int:id>', methods=['DELETE'])
 @jwt_required()

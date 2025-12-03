@@ -176,7 +176,16 @@
 
             if (proximosExames.length > 0) {
                 const prox = proximosExames[0];
-                const dataFormatada = new Date(prox.data).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+                
+                // --- CORREÇÃO DE FUSO HORÁRIO AQUI ---
+                // 1. Cria o objeto data original
+                const dataObj = new Date(prox.data);
+                
+                // 2. Monta uma nova data usando explicitamente os dados UTC (Universais)
+                // Isso impede que o navegador subtraia 3 horas e volte um dia
+                const dataFormatada = new Date(dataObj.getUTCFullYear(), dataObj.getUTCMonth(), dataObj.getUTCDate())
+                    .toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+
                 document.getElementById('kpi-prox-exame').textContent = dataFormatada;
                 document.getElementById('kpi-prox-exame-local').textContent = prox.local || "Local a definir";
             } else {
