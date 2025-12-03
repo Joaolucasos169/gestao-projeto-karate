@@ -323,6 +323,45 @@ function toggleMaximizar() {
     feather.replace();
 }
 
+// FILTRO (ADICIONADO)
+function aplicarFiltroBanca() {
+    const filtro = document.getElementById('filtro-banca').value;
+
+    if (filtro === 'nome') {
+        // Ordem Alfabética de Nomes
+        dadosBancaAtual.sort((a, b) => a.aluno_nome.localeCompare(b.aluno_nome));
+    } 
+    else if (filtro === 'faixa') {
+        // MAPA DE HIERARQUIA
+        const hierarquia = {
+            "branca": 1,
+            "amarela": 2,
+            "vermelha": 3,
+            "laranja": 4,
+            "verde": 5,
+            "roxa": 6,
+            "marrom": 7,
+            "preta": 8
+        };
+
+        dadosBancaAtual.sort((a, b) => {
+            const faixaA = (a.aluno_faixa || "").toLowerCase().trim();
+            const faixaB = (b.aluno_faixa || "").toLowerCase().trim();
+            const pesoA = hierarquia[faixaA] || 99;
+            const pesoB = hierarquia[faixaB] || 99;
+            return pesoA - pesoB; 
+        });
+    } 
+    else if (filtro === 'media_desc') {
+        dadosBancaAtual.sort((a, b) => b.media - a.media); 
+    } 
+    else if (filtro === 'media_asc') {
+        dadosBancaAtual.sort((a, b) => a.media - b.media); 
+    }
+
+    renderizarTabelaNotas();
+}
+
 function fecharBanca() {
     document.getElementById('modal-banca').classList.add('hidden');
 }
